@@ -320,24 +320,18 @@ public class ExoPlayerControlView extends FrameLayout {
         }
 
         if (showPreviewButton) {
-
             previewLayout = new FrameLayout(context);
-            previewLayout.setBackgroundColor(0xFF0000FF);
-
+            previewLayout.setBackgroundColor(context.getResources().getColor(R.color.translucence));
             int screenWidth = ExoPlayerUtils.getScreenWidth(context);
-
             int previewWidth = screenWidth / 3;
             int previewHeight = previewWidth * 9 / 16;
-
             if (screenWidth <= 1080) {
                 previewWidth = (int) context.getResources().getDimension(R.dimen.base_dimen_320);
                 previewHeight = (int) previewWidth * 9 / 16;
             }
-
             FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(previewWidth, previewHeight);
             layoutParams.gravity = Gravity.CENTER;
             addView(previewLayout, layoutParams);
-
             previewLayout.setVisibility(GONE);
         }
 

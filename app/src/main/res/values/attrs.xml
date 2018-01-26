@@ -54,4 +54,15 @@
 
     </declare-styleable>
 
+    <declare-styleable name="ControlPanelContainer">
+        <attr name="gestureLevel">
+            <flag name="gestureLevelSingleTap" value="1" />
+            <flag name="gestureLevelDoubleTap" value="2" />
+            <flag name="gestureLevelHorizonScroll" value="4" />
+            <flag name="gestureLevelVerticalScroll" value="8" />
+            <flag name="gestureLevelHorizonScrollLighting" value="16" />
+            <flag name="gestureLevelHorizonScrollSound" value="32" />
+        </attr>
+    </declare-styleable>
+
 </resources>
