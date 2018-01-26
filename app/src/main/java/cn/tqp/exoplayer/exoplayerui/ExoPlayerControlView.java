@@ -1121,6 +1121,7 @@ public class ExoPlayerControlView extends FrameLayout {
             if (view instanceof SurfaceView) {
                 view.setVisibility(View.VISIBLE);
             }
+            timeBar.setPosition(position);
         }
     }
 
