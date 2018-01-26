@@ -8,10 +8,10 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PointF;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -203,7 +203,7 @@ import cn.tqp.exoplayer.R;
  * of {@code exo_simple_player_view.xml} for only the instance on which the attribute is set.
  */
 @TargetApi(16)
-public class ExoPlayerView extends FrameLayout implements ExoPlayerListener {
+public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.SwitchoverWindow, ExoPlayerListener.PlayerControlListener {
 
     private static final int SURFACE_TYPE_NONE = 0;
     private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
@@ -219,6 +219,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener {
     private final ExoPlayerControlView controller;
     private final ComponentListener componentListener;
     private final FrameLayout overlayFrameLayout;
+    private ExoPlayerControlPanelView controlPanelView;
 
     private SimpleExoPlayer player;
     private boolean useController;
@@ -338,6 +339,13 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener {
             subtitleView.setUserDefaultTextSize();
         }
 
+        //Desktop controller
+        controlPanelView = new ExoPlayerControlPanelView(context);
+        FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        layoutParams.setMargins(30, 100, 30, 100);
+        addView(controlPanelView, layoutParams);
+        controlPanelView.setPlayerControlListener(this);
+
         // Playback control view.
         ExoPlayerControlView customController = findViewById(R.id.exo_controller);
         View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
@@ -362,7 +370,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener {
         this.useController = useController && controller != null;
         hideController();
         if (this.controller != null){
-            this.controller.setExoPlayerListener(this);
+            this.controller.setSwitchoverWindow(this);
         }
     }
 
@@ -817,6 +825,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener {
         } else if (controllerHideOnTouch) {
             controller.hide();
         }
+        Log.i("5555", "onTouchEvent");
         return true;
     }
 
@@ -1081,6 +1090,67 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener {
     public void changeWindowIndex(int windowIndex) {
         if (windowIndex < getVideoList().size()){
             setMovieTitle(getVideoList().get(windowIndex).movieTitle);
+        }
+    }
+
+    @Override
+    public void singleTouch(MotionEvent ev) {
+        onTouchEvent(ev);
+    }
+
+    @Override
+    public void doubleTouch(MotionEvent ev) {
+        if (this.controller != null && !this.controller.getPlayer().isPlayingAd()){
+            if (this.controller.getPlayer().getPlayWhenReady()){
+                this.controller.getPlayer().setPlayWhenReady(false);
+            }else{
+                this.controller.getPlayer().setPlayWhenReady(true);
+            }
+            maybeShowController(true);
+        }
+    }
+
+    @Override
+    public void notifySoundVisible(boolean isShow) {
+
+    }
+
+    @Override
+    public void notifyLightingVisible(boolean isShow) {
+
+    }
+
+    @Override
+    public void notifyLightingSetting(float curr) {
+
+    }
+
+    @Override
+    public void notifySoundChanged(float curr) {
+
+    }
+
+    @Override
+    public void notifyPanelSeekStart() {
+        if (this.controller != null && controlPanelView != null){
+            controlPanelView.setProgressRate(player.getDuration());
+            this.controller.seekStartPreview();
+        }
+    }
+
+    @Override
+    public void notifyPanelSeekChange(PointF point1, PointF point2) {
+        if (this.controller != null && controlPanelView != null){
+            float curr = controlPanelView.getCurrTimeFromEvent(point1, point2, this.controller.getPreViewCurrentPosition(), player.getDuration());
+            long seekTo = (long) (curr * player.getDuration());
+            this.controller.seekChangePreview(seekTo);
+        }
+    }
+
+    @Override
+    public void notifyPanelSeekEnd() {
+        if (this.controller != null && controlPanelView != null){
+            this.controller.seekEndPreview(this.controller.getPreViewCurrentPosition(), false);
         }
     }
 

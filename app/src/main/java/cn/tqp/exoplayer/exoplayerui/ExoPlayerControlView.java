@@ -372,6 +372,7 @@ public class ExoPlayerControlView extends FrameLayout {
             }
 
             FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            layoutParams.setMargins(2, 1, 2, 1);
             previewLayout.addView(preView, layoutParams);
 
             preView.setUseArtwork(false);
@@ -963,8 +964,8 @@ public class ExoPlayerControlView extends FrameLayout {
             // seek then it'll now be in the wrong position. Trigger a progress update to snap it back.
             updateProgress();
         }
-        if (mExoPlayerListener != null) {
-            mExoPlayerListener.changeWindowIndex(windowIndex);
+        if (mSwitchoverWindow != null) {
+            mSwitchoverWindow.changeWindowIndex(windowIndex);
         }
     }
 
@@ -1093,55 +1094,75 @@ public class ExoPlayerControlView extends FrameLayout {
         return true;
     }
 
+    /**
+     * To start fast-forward, set the preview window.
+     */
+    public void seekStartPreview(){
+        removeCallbacks(hideAction);
+        scrubbing = true;
+        if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
+            if (player != null && player instanceof SimpleExoPlayer) {
+                player.setPlayWhenReady(false);
+                preExoPlayer.seekTo(player.getCurrentPosition());
+                preExoPlayer.setPlayWhenReady(false);
+            }
+            previewLayout.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void seekChangePreview(long position){
+        if (positionView != null) {
+            positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+        }
+        if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
+            preExoPlayer.seekTo(position);
+            preExoPlayer.setPlayWhenReady(false);
+            View view = preView.getVideoSurfaceView();
+            if (view instanceof SurfaceView) {
+                view.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    public long getPreViewCurrentPosition(){
+        return preExoPlayer.getCurrentPosition();
+    }
+
+    public void seekEndPreview(long position, boolean canceled){
+        scrubbing = false;
+        if (!canceled && player != null) {
+            seekToTimeBarPosition(position);
+        }
+        hideAfterTimeout();
+        if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
+            if (player != null && player instanceof SimpleExoPlayer) {
+                player.setPlayWhenReady(true);
+            }
+            View view = preView.getVideoSurfaceView();
+            if (view instanceof SurfaceView) {
+                view.setVisibility(View.INVISIBLE);
+            }
+            preExoPlayer.setPlayWhenReady(false);
+            previewLayout.setVisibility(View.GONE);
+        }
+    }
+
     private final class ComponentListener extends Player.DefaultEventListener implements
             TimeBar.OnScrubListener, OnClickListener {
 
         @Override
         public void onScrubStart(TimeBar timeBar, long position) {
-            removeCallbacks(hideAction);
-            scrubbing = true;
-            if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
-                if (player != null && player instanceof SimpleExoPlayer) {
-                    player.setPlayWhenReady(false);
-                }
-                previewLayout.setVisibility(View.VISIBLE);
-            }
+            seekStartPreview();
         }
 
         @Override
         public void onScrubMove(TimeBar timeBar, long position) {
-            if (positionView != null) {
-                positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
-            }
-
-            if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
-                preExoPlayer.seekTo(position);
-                preExoPlayer.setPlayWhenReady(false);
-                View view = preView.getVideoSurfaceView();
-                if (view instanceof SurfaceView) {
-                    view.setVisibility(View.VISIBLE);
-                }
-            }
+            seekChangePreview(position);
         }
 
         @Override
         public void onScrubStop(TimeBar timeBar, long position, boolean canceled) {
-            scrubbing = false;
-            if (!canceled && player != null) {
-                seekToTimeBarPosition(position);
-            }
-            hideAfterTimeout();
-            if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
-                if (player != null && player instanceof SimpleExoPlayer) {
-                    player.setPlayWhenReady(true);
-                }
-                View view = preView.getVideoSurfaceView();
-                if (view instanceof SurfaceView) {
-                    view.setVisibility(View.INVISIBLE);
-                }
-                preExoPlayer.setPlayWhenReady(false);
-                previewLayout.setVisibility(View.GONE);
-            }
+            seekEndPreview(position, canceled);
         }
 
         @Override
@@ -1173,8 +1194,8 @@ public class ExoPlayerControlView extends FrameLayout {
                 preExoPlayer.seekTo(preExoPlayer.getNextWindowIndex(), 0);
             }
 
-            if (mExoPlayerListener != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")) {
-                mExoPlayerListener.changeWindowIndex(player.getCurrentPeriodIndex());
+            if (mSwitchoverWindow != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")) {
+                mSwitchoverWindow.changeWindowIndex(player.getCurrentPeriodIndex());
             }
 
         }
@@ -1303,10 +1324,10 @@ public class ExoPlayerControlView extends FrameLayout {
     };
 
 
-    public ExoPlayerListener mExoPlayerListener;
+    public ExoPlayerListener.SwitchoverWindow mSwitchoverWindow;
 
-    public void setExoPlayerListener(ExoPlayerListener exoPlayerListener) {
-        this.mExoPlayerListener = exoPlayerListener;
+    public void setSwitchoverWindow(ExoPlayerListener.SwitchoverWindow switchoverWindow) {
+        this.mSwitchoverWindow = switchoverWindow;
     }
 
     public void release() {
