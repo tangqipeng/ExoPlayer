@@ -17,6 +17,7 @@ import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
@@ -136,7 +137,7 @@ public class ExoPlayerControlView extends FrameLayout {
     private final View scrrenButton;
     private final TextView durationView;
     private final TextView positionView;
-    private final FrameLayout flPreview;
+    private FrameLayout previewLayout;
     private SimpleExoPlayerView preView;
     private final TimeBar timeBar;
     private final StringBuilder formatBuilder;
@@ -170,8 +171,10 @@ public class ExoPlayerControlView extends FrameLayout {
     private int smalllScreenButton = R.drawable.lessen;
     private int topContainerBackgyound = R.color.translucence;
     private int bottomContainerBackgyound = R.color.translucence;
-    private @RepeatModeUtil.RepeatToggleModes int repeatToggleModes;
+    private @RepeatModeUtil.RepeatToggleModes
+    int repeatToggleModes;
     private boolean showShuffleButton;
+    private boolean showPreviewButton;
     private long hideAtMs;
     private long[] adGroupTimesMs;
     private boolean[] playedAdGroups;
@@ -213,6 +216,7 @@ public class ExoPlayerControlView extends FrameLayout {
         showTimeoutMs = DEFAULT_SHOW_TIMEOUT_MS;
         repeatToggleModes = DEFAULT_REPEAT_TOGGLE_MODES;
         showShuffleButton = false;
+        showPreviewButton = true;
         if (controlAttrs != null) {
             TypedArray a = context.getTheme().obtainStyledAttributes(controlAttrs, R.styleable.ExoPlayerControlView, 0, 0);
             try {
@@ -222,6 +226,7 @@ public class ExoPlayerControlView extends FrameLayout {
                 controllerLayoutId = a.getResourceId(R.styleable.ExoPlayerControlView_control_controller_layout_id, controllerLayoutId);
                 repeatToggleModes = getRepeatToggleModes(a, repeatToggleModes);
                 showShuffleButton = a.getBoolean(R.styleable.ExoPlayerControlView_control_show_shuffle_button, showShuffleButton);
+                showPreviewButton = a.getBoolean(R.styleable.ExoPlayerControlView_control_show_preview_button, showPreviewButton);
                 fullScreenButton = a.getResourceId(R.styleable.ExoPlayerControlView_control_full_scrren_drawable, fullScreenButton);
                 smalllScreenButton = a.getResourceId(R.styleable.ExoPlayerControlView_control_small_scrren_drawable, smalllScreenButton);
                 topContainerBackgyound = a.getResourceId(R.styleable.ExoPlayerControlView_control_top_container_background, topContainerBackgyound);
@@ -246,15 +251,15 @@ public class ExoPlayerControlView extends FrameLayout {
 
         topContainer = findViewById(R.id.top_container);
         bottomContainer = findViewById(R.id.bottom_container);
-        if (topContainer != null){
+        if (topContainer != null) {
             topContainer.setBackgroundResource(topContainerBackgyound);
         }
-        if (bottomContainer != null){
+        if (bottomContainer != null) {
             bottomContainer.setBackgroundResource(bottomContainerBackgyound);
         }
 
         backButton = findViewById(R.id.image_back);
-        if (backButton != null){
+        if (backButton != null) {
             backButton.setOnClickListener(componentListener);
         }
         txtTitle = findViewById(R.id.txt_title);
@@ -262,7 +267,7 @@ public class ExoPlayerControlView extends FrameLayout {
         mImageBattery = findViewById(R.id.image_battery);
         mTxtBattery = findViewById(R.id.txt_battery);
 
-        if (mImageBattery != null || mTxtBattery != null){
+        if (mImageBattery != null || mTxtBattery != null) {
             context.registerReceiver(mBatterReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         }
 
@@ -314,9 +319,26 @@ public class ExoPlayerControlView extends FrameLayout {
             scrrenButton.setOnClickListener(componentListener);
         }
 
-        flPreview = findViewById(R.id.previewFrameLayout);
-        if (flPreview != null){
-            flPreview.setVisibility(GONE);
+        if (showPreviewButton) {
+
+            previewLayout = new FrameLayout(context);
+            previewLayout.setBackgroundColor(0xFF0000FF);
+
+            int screenWidth = ExoPlayerUtils.getScreenWidth(context);
+
+            int previewWidth = screenWidth / 3;
+            int previewHeight = previewWidth * 9 / 16;
+
+            if (screenWidth <= 1080) {
+                previewWidth = (int) context.getResources().getDimension(R.dimen.base_dimen_320);
+                previewHeight = (int) previewWidth * 9 / 16;
+            }
+
+            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(previewWidth, previewHeight);
+            layoutParams.gravity = Gravity.CENTER;
+            addView(previewLayout, layoutParams);
+
+            previewLayout.setVisibility(GONE);
         }
 
         Resources resources = context.getResources();
@@ -336,26 +358,27 @@ public class ExoPlayerControlView extends FrameLayout {
 
     /**
      * add preview mediaSource
+     *
      * @param mediaSource
      */
-    public void addPreviewMediaSouces(MediaSource mediaSource){
+    public void addPreviewMediaSouces(MediaSource mediaSource) {
         this.mPreviewMediaSource = mediaSource;
-        if (preView != null){
+        if (preView != null) {
             if (preExoPlayer != null) {
                 preExoPlayer.release();
                 preExoPlayer = null;
                 perTrackSelector = null;
             }
-        }else{
+        } else {
             preView = new SimpleExoPlayerView(mContext);
         }
-        if (flPreview != null){
-            if (flPreview.getChildCount() > 0){
-                flPreview.removeAllViews();
+        if (showPreviewButton && previewLayout != null) {
+            if (previewLayout.getChildCount() > 0) {
+                previewLayout.removeAllViews();
             }
 
             FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            flPreview.addView(preView, layoutParams);
+            previewLayout.addView(preView, layoutParams);
 
             preView.setUseArtwork(false);
             preView.setControllerAutoShow(false);
@@ -382,10 +405,11 @@ public class ExoPlayerControlView extends FrameLayout {
 
     /**
      * set movie title
+     *
      * @param title
      */
-    public void setMovieTitle(String title){
-        if (txtTitle != null){
+    public void setMovieTitle(String title) {
+        if (txtTitle != null) {
             txtTitle.setText(title);
         }
     }
@@ -557,12 +581,13 @@ public class ExoPlayerControlView extends FrameLayout {
 
     /**
      * Sets whether the scrrenButton button is shown.
+     *
      * @param isShow true show. false dismiss
      */
-    public void setResizeScreenButton(boolean isShow){
-        if (isShow){
+    public void setResizeScreenButton(boolean isShow) {
+        if (isShow) {
             scrrenButton.setVisibility(VISIBLE);
-        }else{
+        } else {
             scrrenButton.setVisibility(GONE);
         }
     }
@@ -823,8 +848,8 @@ public class ExoPlayerControlView extends FrameLayout {
             timeBar.setDuration(duration);
         }
 
-        if (txtDate != null){
-            android.text.format. Time localTime = new android.text.format.Time("Asia/Hong_Kong");
+        if (txtDate != null) {
+            android.text.format.Time localTime = new android.text.format.Time("Asia/Hong_Kong");
             localTime.setToNow();
             String date = localTime.format("%H:%M");
             txtDate.setText(date);
@@ -876,9 +901,9 @@ public class ExoPlayerControlView extends FrameLayout {
         }
         view.setEnabled(enabled);
         view.setAlpha(enabled ? 1f : 0.3f);
-        if (view == nextButton){
+        if (view == nextButton) {
             view.setVisibility(enabled ? VISIBLE : GONE);
-        }else{
+        } else {
             view.setVisibility(isVisible ? VISIBLE : GONE);
         }
     }
@@ -944,7 +969,7 @@ public class ExoPlayerControlView extends FrameLayout {
             // seek then it'll now be in the wrong position. Trigger a progress update to snap it back.
             updateProgress();
         }
-        if (mExoPlayerListener != null){
+        if (mExoPlayerListener != null) {
             mExoPlayerListener.changeWindowIndex(windowIndex);
         }
     }
@@ -1081,11 +1106,11 @@ public class ExoPlayerControlView extends FrameLayout {
         public void onScrubStart(TimeBar timeBar, long position) {
             removeCallbacks(hideAction);
             scrubbing = true;
-            if (flPreview != null && preView != null && mPreviewMediaSource != null){
-                if (player != null && player instanceof SimpleExoPlayer){
+            if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
+                if (player != null && player instanceof SimpleExoPlayer) {
                     player.setPlayWhenReady(false);
                 }
-                flPreview.setVisibility(View.VISIBLE);
+                previewLayout.setVisibility(View.VISIBLE);
             }
         }
 
@@ -1095,7 +1120,7 @@ public class ExoPlayerControlView extends FrameLayout {
                 positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
             }
 
-            if (flPreview != null && preView != null && mPreviewMediaSource != null){
+            if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
                 preExoPlayer.seekTo(position);
                 preExoPlayer.setPlayWhenReady(false);
                 View view = preView.getVideoSurfaceView();
@@ -1112,8 +1137,8 @@ public class ExoPlayerControlView extends FrameLayout {
                 seekToTimeBarPosition(position);
             }
             hideAfterTimeout();
-            if (flPreview != null && preView != null && mPreviewMediaSource != null){
-                if (player != null && player instanceof SimpleExoPlayer){
+            if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
+                if (player != null && player instanceof SimpleExoPlayer) {
                     player.setPlayWhenReady(true);
                 }
                 View view = preView.getVideoSurfaceView();
@@ -1121,7 +1146,7 @@ public class ExoPlayerControlView extends FrameLayout {
                     view.setVisibility(View.INVISIBLE);
                 }
                 preExoPlayer.setPlayWhenReady(false);
-                flPreview.setVisibility(View.INVISIBLE);
+                previewLayout.setVisibility(View.GONE);
             }
         }
 
@@ -1150,11 +1175,11 @@ public class ExoPlayerControlView extends FrameLayout {
             /**
              * 这里的预览窗口要同步切换
              */
-            if (flPreview != null && preView != null && mPreviewMediaSource != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")){
+            if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")) {
                 preExoPlayer.seekTo(preExoPlayer.getNextWindowIndex(), 0);
             }
 
-            if (mExoPlayerListener != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")){
+            if (mExoPlayerListener != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")) {
                 mExoPlayerListener.changeWindowIndex(player.getCurrentPeriodIndex());
             }
 
@@ -1163,7 +1188,7 @@ public class ExoPlayerControlView extends FrameLayout {
         @Override
         public void onTimelineChanged(Timeline timeline, Object manifest) {
 
-            Log.i("FFFF", "timeline.getWindowCount():"+ timeline.getWindowCount());
+            Log.i("FFFF", "timeline.getWindowCount():" + timeline.getWindowCount());
 
             updateNavigation();
             updateTimeBarMode();
@@ -1175,17 +1200,17 @@ public class ExoPlayerControlView extends FrameLayout {
             if (player != null) {
                 if (backButton == view) {
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {//横屏
-                        ((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                         scrrenButton.setBackgroundResource(fullScreenButton);
                     } else {
-                        ((Activity)mContext).finish();
+                        ((Activity) mContext).finish();
                     }
                 } else if (nextButton == view) {
                     next();
                     /**
                      * 这里的预览窗口要同步切换
                      */
-                    if (flPreview != null && preView != null && mPreviewMediaSource != null){
+                    if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
                         preExoPlayer.seekTo(preExoPlayer.getNextWindowIndex(), 0);
                     }
                 } else if (previousButton == view) {
@@ -1205,10 +1230,10 @@ public class ExoPlayerControlView extends FrameLayout {
                     controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
                 } else if (scrrenButton == view) {
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {//横屏
-                        ((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                         scrrenButton.setBackgroundResource(fullScreenButton);
                     } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {//竖屏
-                        ((Activity)mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                        ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
                         scrrenButton.setBackgroundResource(smalllScreenButton);
                     }
                 }
@@ -1242,10 +1267,10 @@ public class ExoPlayerControlView extends FrameLayout {
                     BatteryManager.BATTERY_STATUS_UNKNOWN);
             if (status == BatteryManager.BATTERY_STATUS_CHARGING) {
                 // 充电中
-                if (mImageBattery != null){
+                if (mImageBattery != null) {
                     mImageBattery.setImageResource(R.mipmap.battery_charging);
                 }
-                if (mTxtBattery != null){
+                if (mTxtBattery != null) {
                     int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
                     int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
                     int percentage = (int) (((float) level / scale) * 100);
@@ -1253,17 +1278,17 @@ public class ExoPlayerControlView extends FrameLayout {
                 }
             } else if (status == BatteryManager.BATTERY_STATUS_FULL) {
                 // 充电完成
-                if (mImageBattery != null){
+                if (mImageBattery != null) {
                     mImageBattery.setImageResource(R.mipmap.battery_full);
                 }
-                if (mTxtBattery != null){
+                if (mTxtBattery != null) {
                     mTxtBattery.setText("100%");
                 }
             } else {
                 int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
                 int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
                 int percentage = (int) (((float) level / scale) * 100);
-                if (mImageBattery != null){
+                if (mImageBattery != null) {
                     if (percentage <= 10) {
                         mImageBattery.setImageResource(R.mipmap.battery_10);
                     } else if (percentage <= 20) {
@@ -1276,7 +1301,7 @@ public class ExoPlayerControlView extends FrameLayout {
                         mImageBattery.setImageResource(R.mipmap.battery_100);
                     }
                 }
-                if (mTxtBattery != null){
+                if (mTxtBattery != null) {
                     mTxtBattery.setText(percentage + "%");
                 }
             }
@@ -1286,15 +1311,15 @@ public class ExoPlayerControlView extends FrameLayout {
 
     public ExoPlayerListener mExoPlayerListener;
 
-    public void setExoPlayerListener(ExoPlayerListener exoPlayerListener){
+    public void setExoPlayerListener(ExoPlayerListener exoPlayerListener) {
         this.mExoPlayerListener = exoPlayerListener;
     }
 
-    public void release(){
-        if (mImageBattery != null || mTxtBattery != null){
+    public void release() {
+        if (mImageBattery != null || mTxtBattery != null) {
             mContext.unregisterReceiver(mBatterReceiver);
         }
-        if (preExoPlayer != null){
+        if (preExoPlayer != null) {
             preExoPlayer.release();
             preExoPlayer = null;
             perTrackSelector = null;

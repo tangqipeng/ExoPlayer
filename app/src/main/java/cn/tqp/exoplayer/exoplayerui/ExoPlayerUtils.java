@@ -26,6 +26,10 @@ public class ExoPlayerUtils {
         return context.getResources().getDisplayMetrics().widthPixels;
     }
 
+    public static int getScreenHeight(Context context) {
+        return context.getResources().getDisplayMetrics().heightPixels;
+    }
+
     //获取屏幕原始尺寸高度，包括虚拟功能键高度
     public static int getDpi(Context context) {
         int dpi = 0;

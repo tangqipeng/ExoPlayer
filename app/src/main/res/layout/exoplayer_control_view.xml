@@ -194,25 +194,5 @@
             android:src="@drawable/full" />
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/previewFrameLayout"
-        android:layout_width="@dimen/base_dimen_320"
-        android:layout_height="@dimen/base_dimen_180"
-        android:layout_centerInParent="true"
-        android:background="@color/translucence"
-        android:padding="@dimen/base_dimen_4">
-
-
-        <com.google.android.exoplayer2.ui.SimpleExoPlayerView
-            android:id="@+id/previewPlayerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:controller_layout_id="@layout/exo_simple_player_view"
-            app:surface_type="surface_view"
-            app:use_artwork="false"
-            app:use_controller="false" />
-
-
-    </FrameLayout>
 
 </RelativeLayout>
