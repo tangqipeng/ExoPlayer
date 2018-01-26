@@ -932,7 +932,9 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener {
 
     @Override
     public void changeWindowIndex(int windowIndex) {
-        setMovieTitle(getVideoList().get(windowIndex).movieTitle);
+        if (windowIndex < getVideoList().size()){
+            setMovieTitle(getVideoList().get(windowIndex).movieTitle);
+        }
     }
 
     public void release(){

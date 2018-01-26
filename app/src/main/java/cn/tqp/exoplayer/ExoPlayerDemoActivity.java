@@ -52,6 +52,13 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
         videoInfo1.moviePreviewUrl = getResources().getString(R.string.url_hls1);
         videoInfos.add(videoInfo1);
 
+        VideoInfo videoInfo2 = new VideoInfo();
+        videoInfo2.movieId = "3";
+        videoInfo2.movieTitle = "TLC";
+        videoInfo2.movieUrl = getResources().getString(R.string.url_hls1);
+        videoInfo2.moviePreviewUrl = getResources().getString(R.string.url_hls1);
+        videoInfos.add(videoInfo2);
+
         exoPlayerManager.addVideoDatas(videoInfos);
 
     }

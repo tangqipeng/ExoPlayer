@@ -2,13 +2,17 @@ package cn.tqp.exoplayer.exoplayerui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.BatteryManager;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -118,6 +122,9 @@ public class ExoPlayerControlView extends FrameLayout {
     private final View bottomContainer;
     private final View backButton;
     private final TextView txtTitle;
+    private final TextView txtDate;
+    private final ImageView mImageBattery;
+    private final TextView mTxtBattery;
     private final View previousButton;
     private final View nextButton;
     private final View playButton;
@@ -251,6 +258,14 @@ public class ExoPlayerControlView extends FrameLayout {
             backButton.setOnClickListener(componentListener);
         }
         txtTitle = findViewById(R.id.txt_title);
+        txtDate = findViewById(R.id.txt_date);
+        mImageBattery = findViewById(R.id.image_battery);
+        mTxtBattery = findViewById(R.id.txt_battery);
+
+        if (mImageBattery != null || mTxtBattery != null){
+            context.registerReceiver(mBatterReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        }
+
         durationView = findViewById(R.id.exo_duration);
         positionView = findViewById(R.id.exo_position);
         timeBar = findViewById(R.id.exo_progress);
@@ -808,6 +823,13 @@ public class ExoPlayerControlView extends FrameLayout {
             timeBar.setDuration(duration);
         }
 
+        if (txtDate != null){
+            android.text.format. Time localTime = new android.text.format.Time("Asia/Hong_Kong");
+            localTime.setToNow();
+            String date = localTime.format("%H:%M");
+            txtDate.setText(date);
+        }
+
         // Cancel any pending updates and schedule a new one if necessary.
         removeCallbacks(updateProgressAction);
         int playbackState = player == null ? Player.STATE_IDLE : player.getPlaybackState();
@@ -1074,7 +1096,6 @@ public class ExoPlayerControlView extends FrameLayout {
             }
 
             if (flPreview != null && preView != null && mPreviewMediaSource != null){
-                Log.d("5555", "onScrubMove");
                 preExoPlayer.seekTo(position);
                 preExoPlayer.setPlayWhenReady(false);
                 View view = preView.getVideoSurfaceView();
@@ -1092,7 +1113,6 @@ public class ExoPlayerControlView extends FrameLayout {
             }
             hideAfterTimeout();
             if (flPreview != null && preView != null && mPreviewMediaSource != null){
-                Log.d("5555", "onScrubStop");
                 if (player != null && player instanceof SimpleExoPlayer){
                     player.setPlayWhenReady(true);
                 }
@@ -1135,7 +1155,7 @@ public class ExoPlayerControlView extends FrameLayout {
             }
 
             if (mExoPlayerListener != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")){
-                mExoPlayerListener.changeWindowIndex(player.getNextWindowIndex());
+                mExoPlayerListener.changeWindowIndex(player.getCurrentPeriodIndex());
             }
 
         }
@@ -1212,6 +1232,58 @@ public class ExoPlayerControlView extends FrameLayout {
         }
     }
 
+    /**
+     * 电池状态即电量变化广播接收器
+     */
+    private BroadcastReceiver mBatterReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS,
+                    BatteryManager.BATTERY_STATUS_UNKNOWN);
+            if (status == BatteryManager.BATTERY_STATUS_CHARGING) {
+                // 充电中
+                if (mImageBattery != null){
+                    mImageBattery.setImageResource(R.mipmap.battery_charging);
+                }
+                if (mTxtBattery != null){
+                    int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+                    int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
+                    int percentage = (int) (((float) level / scale) * 100);
+                    mTxtBattery.setText(percentage + "%");
+                }
+            } else if (status == BatteryManager.BATTERY_STATUS_FULL) {
+                // 充电完成
+                if (mImageBattery != null){
+                    mImageBattery.setImageResource(R.mipmap.battery_full);
+                }
+                if (mTxtBattery != null){
+                    mTxtBattery.setText("100%");
+                }
+            } else {
+                int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+                int scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
+                int percentage = (int) (((float) level / scale) * 100);
+                if (mImageBattery != null){
+                    if (percentage <= 10) {
+                        mImageBattery.setImageResource(R.mipmap.battery_10);
+                    } else if (percentage <= 20) {
+                        mImageBattery.setImageResource(R.mipmap.battery_20);
+                    } else if (percentage <= 50) {
+                        mImageBattery.setImageResource(R.mipmap.battery_50);
+                    } else if (percentage <= 80) {
+                        mImageBattery.setImageResource(R.mipmap.battery_80);
+                    } else if (percentage <= 100) {
+                        mImageBattery.setImageResource(R.mipmap.battery_100);
+                    }
+                }
+                if (mTxtBattery != null){
+                    mTxtBattery.setText(percentage + "%");
+                }
+            }
+        }
+    };
+
+
     public ExoPlayerListener mExoPlayerListener;
 
     public void setExoPlayerListener(ExoPlayerListener exoPlayerListener){
@@ -1219,6 +1291,9 @@ public class ExoPlayerControlView extends FrameLayout {
     }
 
     public void release(){
+        if (mImageBattery != null || mTxtBattery != null){
+            mContext.unregisterReceiver(mBatterReceiver);
+        }
         if (preExoPlayer != null){
             preExoPlayer.release();
             preExoPlayer = null;
