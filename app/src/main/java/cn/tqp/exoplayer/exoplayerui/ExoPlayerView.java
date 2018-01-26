@@ -56,7 +56,7 @@ import cn.tqp.exoplayer.R;
  * Created by tangqipeng on 2018/1/25.
  */
 @TargetApi(16)
-public class ExoPlayerView extends FrameLayout {
+public class ExoPlayerView extends FrameLayout implements ExoPlayerListener {
 
     private static final int SURFACE_TYPE_NONE = 0;
     private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
@@ -214,6 +214,9 @@ public class ExoPlayerView extends FrameLayout {
         this.controllerHideDuringAds = controllerHideDuringAds;
         this.useController = useController && controller != null;
         hideController();
+        if (this.controller != null){
+            this.controller.setExoPlayerListener(this);
+        }
     }
 
     /**
@@ -925,6 +928,11 @@ public class ExoPlayerView extends FrameLayout {
                 hideController();
             }
         }
+    }
+
+    @Override
+    public void changeWindowIndex(int windowIndex) {
+        setMovieTitle(getVideoList().get(windowIndex).movieTitle);
     }
 
     public void release(){

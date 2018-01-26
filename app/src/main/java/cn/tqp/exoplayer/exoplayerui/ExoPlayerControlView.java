@@ -917,11 +917,13 @@ public class ExoPlayerControlView extends FrameLayout {
 
     private void seekTo(int windowIndex, long positionMs) {
         boolean dispatched = controlDispatcher.dispatchSeekTo(player, windowIndex, positionMs);
-        setMovieTitle(((ExoPlayerView)player).getVideoList().get(windowIndex).movieTitle);
         if (!dispatched) {
             // The seek wasn't dispatched. If the progress bar was dragged by the user to perform the
             // seek then it'll now be in the wrong position. Trigger a progress update to snap it back.
             updateProgress();
+        }
+        if (mExoPlayerListener != null){
+            mExoPlayerListener.changeWindowIndex(windowIndex);
         }
     }
 
@@ -1132,10 +1134,17 @@ public class ExoPlayerControlView extends FrameLayout {
                 preExoPlayer.seekTo(preExoPlayer.getNextWindowIndex(), 0);
             }
 
+            if (mExoPlayerListener != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")){
+                mExoPlayerListener.changeWindowIndex(player.getNextWindowIndex());
+            }
+
         }
 
         @Override
         public void onTimelineChanged(Timeline timeline, Object manifest) {
+
+            Log.i("FFFF", "timeline.getWindowCount():"+ timeline.getWindowCount());
+
             updateNavigation();
             updateTimeBarMode();
             updateProgress();
@@ -1201,6 +1210,12 @@ public class ExoPlayerControlView extends FrameLayout {
             default:
                 return "?";
         }
+    }
+
+    public ExoPlayerListener mExoPlayerListener;
+
+    public void setExoPlayerListener(ExoPlayerListener exoPlayerListener){
+        this.mExoPlayerListener = exoPlayerListener;
     }
 
     public void release(){
