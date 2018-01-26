@@ -2,6 +2,7 @@ package cn.tqp.exoplayer;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -10,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerManager;
+import cn.tqp.exoplayer.exoplayerui.ExoPlayerUtils;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
 import cn.tqp.exoplayer.exoplayerui.VideoInfo;
 
@@ -32,6 +34,15 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         exoPlayerView = (ExoPlayerView) findViewById(R.id.exoplayerview);
+
+        int playerWidth = ExoPlayerUtils.getScreenWidth(this);
+
+        int playerHeight = playerWidth * 9 / 16;
+
+        ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, playerHeight);
+
+        exoPlayerView.setLayoutParams(layoutParams);
+
         //这句绝对不能少（再有大小屏切换的时候，不需要大小屏切换可以不设置）最好是每次都设置
         exoPlayerView.setExoPlayerViewContainer((ViewGroup) exoPlayerView.getParent());
 

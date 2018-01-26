@@ -335,10 +335,10 @@ public class ExoPlayerControlView extends FrameLayout {
     }
 
     /**
-     * 加入预览播放地址和设置播放器
+     * add preview mediaSource
      * @param mediaSource
      */
-    public void addPreviewurl(MediaSource mediaSource){
+    public void addPreviewMediaSouces(MediaSource mediaSource){
         this.mPreviewMediaSource = mediaSource;
         if (preView != null){
             if (preExoPlayer != null) {
@@ -381,7 +381,7 @@ public class ExoPlayerControlView extends FrameLayout {
     }
 
     /**
-     * 设置标题
+     * set movie title
      * @param title
      */
     public void setMovieTitle(String title){

@@ -1,10 +1,13 @@
 package cn.tqp.exoplayer.exoplayerui;
 
 import android.content.Context;
+import android.support.annotation.IntDef;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
 
 /**
