@@ -321,7 +321,7 @@ public class ExoPlayerControlView extends FrameLayout {
 
         if (showPreviewButton) {
             previewLayout = new FrameLayout(context);
-            previewLayout.setBackgroundColor(context.getResources().getColor(R.color.translucence));
+            previewLayout.setBackgroundResource(R.drawable.translucence_round_bg);
             int screenWidth = ExoPlayerUtils.getScreenWidth(context);
             int previewWidth = screenWidth / 3;
             int previewHeight = previewWidth * 9 / 16;

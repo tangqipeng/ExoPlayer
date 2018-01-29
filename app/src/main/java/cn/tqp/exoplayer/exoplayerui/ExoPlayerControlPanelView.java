@@ -16,7 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
-import cn.tqp.exoplayer.MainActivity;
 import cn.tqp.exoplayer.R;
 
 
@@ -148,6 +147,8 @@ public class ExoPlayerControlPanelView extends View {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if (ExoPlayerScreenOrientation.getIsPortrait(mContext))
+                return false;
             if (mPrePoint.equals(0.f, 0.f)) {
                 mPrePoint.set(e1.getRawX(), e1.getRawY());
             }
