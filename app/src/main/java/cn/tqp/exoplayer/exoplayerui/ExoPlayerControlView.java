@@ -371,6 +371,9 @@ public class ExoPlayerControlView extends FrameLayout {
             if (mTxtBattery != null){
                 mTxtBattery.setVisibility(INVISIBLE);
             }
+            if (lockButton != null) {
+                lockButton.setVisibility(INVISIBLE);
+            }
         }else if (ExoPlayerScreenOrientation.getIsLandscape(mContext)){
             if (txtDate != null){
                 txtDate.setVisibility(VISIBLE);
@@ -380,6 +383,9 @@ public class ExoPlayerControlView extends FrameLayout {
             }
             if (mTxtBattery != null){
                 mTxtBattery.setVisibility(VISIBLE);
+            }
+            if (lockButton != null) {
+                lockButton.setVisibility(VISIBLE);
             }
         }
     }
@@ -643,6 +649,23 @@ public class ExoPlayerControlView extends FrameLayout {
             }
             updateAll();
             requestPlayPauseFocus();
+
+            if (ExoPlayerScreenOrientation.mIsScreenLock){
+                if (bottomContainer != null){
+                    bottomContainer.setVisibility(GONE);
+                }
+                if (topContainer != null){
+                    topContainer.setVisibility(GONE);
+                }
+            }else{
+                if (bottomContainer != null){
+                    bottomContainer.setVisibility(VISIBLE);
+                }
+                if (topContainer != null){
+                    topContainer.setVisibility(VISIBLE);
+                }
+            }
+
         }
         // Call hideAfterTimeout even if already visible to reset the timeout.
         hideAfterTimeout();
@@ -1291,9 +1314,21 @@ public class ExoPlayerControlView extends FrameLayout {
                     if (ExoPlayerScreenOrientation.mIsScreenLock){
                         ExoPlayerScreenOrientation.mIsScreenLock = false;
                         lockButton.setImageResource(R.mipmap.orientation_lock_close);
+                        if (bottomContainer != null){
+                            bottomContainer.setVisibility(VISIBLE);
+                        }
+                        if (topContainer != null){
+                            topContainer.setVisibility(VISIBLE);
+                        }
                     }else{
                         ExoPlayerScreenOrientation.mIsScreenLock = true;
                         lockButton.setImageResource(R.mipmap.orientation_lock_open);
+                        if (bottomContainer != null){
+                            bottomContainer.setVisibility(GONE);
+                        }
+                        if (topContainer != null){
+                            topContainer.setVisibility(GONE);
+                        }
                     }
                 }
             }

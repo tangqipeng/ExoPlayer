@@ -70,6 +70,13 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
         videoInfo2.moviePreviewUrl = getResources().getString(R.string.url_hls1);
         videoInfos.add(videoInfo2);
 
+        VideoInfo videoInfo3 = new VideoInfo();
+        videoInfo3.movieId = "4";
+        videoInfo3.movieTitle = "啥电影";
+        videoInfo3.movieUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/zufudechengfa_iframe.m3u8";
+        videoInfo3.moviePreviewUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/zufudechengfa_iframe.m3u8";
+        videoInfos.add(videoInfo3);
+
         exoPlayerManager.addVideoDatas(videoInfos);
 
     }
