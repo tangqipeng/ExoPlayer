@@ -56,6 +56,8 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.lang.reflect.Method;
 
+import cn.tqp.exoplayer.exoplayerui.ExoPlayerScreenOrientation;
+
 
 public class MainActivity extends AppCompatActivity implements PlaybackControlView.VisibilityListener, TimeBar.OnScrubListener {
 
@@ -86,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         constraintLayout = (ConstraintLayout) findViewById(R.id.constrainlayout);
+
+        Log.i("FFFF", "getOrientationConfig:"+ ExoPlayerScreenOrientation.getOrientationConfig(this));
 
         /**
          * Create Simple Exoplayer Player
@@ -226,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
             @Override
             public void onClick(View view) {
                 if (MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {//横屏
-                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
                     fs.setBackgroundResource(R.drawable.full);
                 } else if (MainActivity.this.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {//竖屏
                     setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);

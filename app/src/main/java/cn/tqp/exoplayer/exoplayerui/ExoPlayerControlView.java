@@ -342,12 +342,39 @@ public class ExoPlayerControlView extends FrameLayout {
         repeatOffButtonContentDescription = resources.getString(com.google.android.exoplayer2.ui.R.string.exo_controls_repeat_off_description);
         repeatOneButtonContentDescription = resources.getString(com.google.android.exoplayer2.ui.R.string.exo_controls_repeat_one_description);
         repeatAllButtonContentDescription = resources.getString(com.google.android.exoplayer2.ui.R.string.exo_controls_repeat_all_description);
+
+        setSomeButtonVisible();
+
     }
 
     @SuppressWarnings("ResourceType")
     private static @RepeatModeUtil.RepeatToggleModes
     int getRepeatToggleModes(TypedArray a, @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
         return a.getInt(R.styleable.ExoPlayerControlView_control_repeat_toggle_modes, repeatToggleModes);
+    }
+
+    public void setSomeButtonVisible(){
+        if (ExoPlayerScreenOrientation.getIsPortrait(mContext)){
+            if (txtDate != null){
+                txtDate.setVisibility(INVISIBLE);
+            }
+            if (mImageBattery != null){
+                mImageBattery.setVisibility(INVISIBLE);
+            }
+            if (mTxtBattery != null){
+                mTxtBattery.setVisibility(INVISIBLE);
+            }
+        }else if (ExoPlayerScreenOrientation.getIsLandscape(mContext)){
+            if (txtDate != null){
+                txtDate.setVisibility(VISIBLE);
+            }
+            if (mImageBattery != null){
+                mImageBattery.setVisibility(VISIBLE);
+            }
+            if (mTxtBattery != null){
+                mTxtBattery.setVisibility(VISIBLE);
+            }
+        }
     }
 
     /**
@@ -1248,16 +1275,26 @@ public class ExoPlayerControlView extends FrameLayout {
                     controlDispatcher.dispatchSetShuffleModeEnabled(player, !player.getShuffleModeEnabled());
                 } else if (scrrenButton == view) {
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {//横屏
-                        ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-                        scrrenButton.setBackgroundResource(fullScreenButton);
+                        setOrientationChangeToPortrait();
                     } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {//竖屏
-                        ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
-                        scrrenButton.setBackgroundResource(smalllScreenButton);
+                        setOrientationChangeToLandscape();
                     }
                 }
             }
             hideAfterTimeout();
         }
+    }
+
+    public void setOrientationChangeToPortrait(){
+        ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        if (scrrenButton != null)
+            scrrenButton.setBackgroundResource(fullScreenButton);
+    }
+
+    public void setOrientationChangeToLandscape(){
+        ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        if (scrrenButton != null)
+            scrrenButton.setBackgroundResource(smalllScreenButton);
     }
 
     private String getDiscontinuityReasonString(@Player.DiscontinuityReason int reason) {

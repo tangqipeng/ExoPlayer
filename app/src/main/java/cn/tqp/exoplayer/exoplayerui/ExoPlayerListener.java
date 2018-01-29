@@ -38,4 +38,12 @@ public class ExoPlayerListener {
 
     }
 
+    public interface PlayerGravitySensorListener {
+
+        void notifyOrientationChangeToPortrait();
+
+        void notifyOrientationChangeToLandscape();
+
+    }
+
 }

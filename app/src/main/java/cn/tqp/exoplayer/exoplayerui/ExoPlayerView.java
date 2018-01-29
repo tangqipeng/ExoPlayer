@@ -50,7 +50,6 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.util.List;
 
-import cn.tqp.exoplayer.AppUtil;
 import cn.tqp.exoplayer.R;
 
 /**
@@ -204,7 +203,7 @@ import cn.tqp.exoplayer.R;
  * of {@code exo_simple_player_view.xml} for only the instance on which the attribute is set.
  */
 @TargetApi(16)
-public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.SwitchoverWindow, ExoPlayerListener.PlayerControlListener {
+public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.SwitchoverWindow, ExoPlayerListener.PlayerControlListener, ExoPlayerListener.PlayerGravitySensorListener {
 
     private static final int SURFACE_TYPE_NONE = 0;
     private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
@@ -231,6 +230,8 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     private boolean controllerAutoShow;
     private boolean controllerHideDuringAds;
     private boolean controllerHideOnTouch;
+
+    private ExoPlayerGravitySensorManager sensorManager;
 
     private List<VideoInfo> mVideoInfoList;
 
@@ -379,6 +380,13 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         hideController();
         if (this.controller != null){
             this.controller.setSwitchoverWindow(this);
+        }
+
+        if (ExoPlayerScreenOrientation.getIsCanSensor(mContext)){
+            sensorManager = new ExoPlayerGravitySensorManager();
+            sensorManager.register(mContext);
+            sensorManager.setPlayerGravitySensorListener(this);
+            ExoPlayerScreenOrientation.setSensor(true);
         }
     }
 
@@ -982,7 +990,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {//横屏
-            AppUtil.hideActionBarAndBottomUiMenu(mContext);
+            ExoPlayerUtils.hideActionBarAndBottomUiMenu(mContext);
 
             if (exoPlayerViewContainer != null){
                 new Handler().post(new Runnable() {
@@ -1000,7 +1008,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
             scaleLayout(0, 0);
 
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {//竖屏
-            AppUtil.showActionBarAndBottomUiMenu(mContext);
+            ExoPlayerUtils.showActionBarAndBottomUiMenu(mContext);
             if (exoPlayerViewContainer != null){
                 new Handler().post(new Runnable() {
                     @Override
@@ -1013,6 +1021,10 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
 
             scaleLayout(ExoPlayerUtils.getScreenWidth(mContext), ExoPlayerUtils.getScreenWidth(mContext) * 9 / 16);
 
+        }
+
+        if (this.controller != null){
+            this.controller.setSomeButtonVisible();
         }
     }
 
@@ -1172,9 +1184,30 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         }
     }
 
+    /**
+     * change Orientation to portrait
+     */
+    @Override
+    public void notifyOrientationChangeToPortrait() {
+        if (this.controller != null)
+            this.controller.setOrientationChangeToPortrait();
+    }
+
+    /**
+     * change Orientation to landscape
+     */
+    @Override
+    public void notifyOrientationChangeToLandscape() {
+        if (this.controller != null)
+            this.controller.setOrientationChangeToLandscape();
+    }
+
     public void release(){
         if (this.controller != null){
             this.controller.release();
+        }
+        if (sensorManager != null){
+            sensorManager.release();
         }
     }
 }
