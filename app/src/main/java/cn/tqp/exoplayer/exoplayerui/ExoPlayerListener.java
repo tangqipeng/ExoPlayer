@@ -24,11 +24,11 @@ public class ExoPlayerListener {
 
         void notifySoundVisible(boolean isShow);
 
+        void notifySoundChanged(float curr);
+
         void notifyLightingVisible(boolean isShow);
 
         void notifyLightingSetting(float curr);
-
-        void notifySoundChanged(float curr);
 
         void notifyPanelSeekStart();
 

@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
@@ -222,7 +221,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     private final ComponentListener componentListener;
     private final FrameLayout overlayFrameLayout;
     private ExoPlayerControlPanelView controlPanelView;
-    private ExoPlayerLightView mLightView;
+    private ExoPlayerLightAndSoundView mLightView;
 
     private SimpleExoPlayer player;
     private boolean useController;
@@ -349,7 +348,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         addView(controlPanelView, layoutParams);
         controlPanelView.setPlayerControlListener(this);
 
-        mLightView = new ExoPlayerLightView(context);
+        mLightView = new ExoPlayerLightAndSoundView(context);
         FrameLayout.LayoutParams lightParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lightParams.gravity = Gravity.CENTER;
         addView(mLightView, lightParams);
@@ -1121,12 +1120,22 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
 
     @Override
     public void notifySoundVisible(boolean isShow) {
+        mLightView.setIconType(ExoPlayerLightAndSoundView.SOUND_TYPE);
+        if (isShow){
+            mLightView.setVisibility(VISIBLE);
+        }else {
+            mLightView.setVisibility(GONE);
+        }
+    }
 
+    @Override
+    public void notifySoundChanged(float curr) {
+        mLightView.setLightPercentage(curr);
     }
 
     @Override
     public void notifyLightingVisible(boolean isShow) {
-        Log.i("HHHH", "isShow:"+isShow);
+        mLightView.setIconType(ExoPlayerLightAndSoundView.LIGHT_TYPE);
         if (isShow){
             mLightView.setVisibility(VISIBLE);
         }else {
@@ -1137,11 +1146,6 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     @Override
     public void notifyLightingSetting(float curr) {
         mLightView.setLightPercentage(curr);
-    }
-
-    @Override
-    public void notifySoundChanged(float curr) {
-
     }
 
     @Override
