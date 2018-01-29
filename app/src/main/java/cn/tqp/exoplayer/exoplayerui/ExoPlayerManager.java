@@ -49,15 +49,22 @@ public class ExoPlayerManager {
     private VideoInfo mVideoInfo;
     private MediaSource[] mediaSources;
     private MediaSource[] previewMediaSources;
+    private DefaultTrackSelector trackSelector;
     private EventLogger eventLogger;
     private DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
     private Handler mainHandler = new Handler();
-    private MediaSouceListener mediaSouceListener = new MediaSouceListener();
 
     public ExoPlayerManager(ExoPlayerView playerView) {
         this.playerView = playerView;
+        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
+        trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+        eventLogger = new EventLogger(trackSelector);
     }
 
+    /**
+     * 一次注入多个数据
+     * @param videoInfoList
+     */
     public void addVideoDatas(List<VideoInfo> videoInfoList){
         this.mVideoInfoList = videoInfoList;
         playerView.setVideoInfoList(videoInfoList);
@@ -69,6 +76,10 @@ public class ExoPlayerManager {
         }
     }
 
+    /**
+     * 一次加入单个数据
+     * @param videoInfo
+     */
     public void addVideoData(VideoInfo videoInfo){
         this.mVideoInfo = videoInfo;
         List<VideoInfo> videoInfos = new ArrayList<>();
@@ -109,6 +120,7 @@ public class ExoPlayerManager {
             exoPlayer.release();
             exoPlayer = null;
             playerView.release();
+            trackSelector = null;
         }
     }
 
@@ -128,11 +140,8 @@ public class ExoPlayerManager {
     }
 
     private SimpleExoPlayer createFullPlayer() {
-        TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
-        DefaultTrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
 //        LoadControl loadControl = new DefaultLoadControl();
         SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(playerView.getContext(), trackSelector);
-        eventLogger = new EventLogger(trackSelector);
         player.setPlayWhenReady(true);
         ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);
         player.prepare(concatenatedSource);
@@ -175,59 +184,21 @@ public class ExoPlayerManager {
         switch (type) {
             case C.TYPE_DASH:
                 return new DashMediaSource.Factory(new DefaultDashChunkSource.Factory(buildDataSourceFactory(useBandwidthMeter)),
-                        buildDataSourceFactory(false)).createMediaSource(uri, mainHandler, mediaSouceListener);
+                        buildDataSourceFactory(false)).createMediaSource(uri, mainHandler, eventLogger);
             case C.TYPE_SS:
                 return new SsMediaSource.Factory(
                         new DefaultSsChunkSource.Factory(buildDataSourceFactory(useBandwidthMeter)),
                         buildDataSourceFactory(false))
-                        .createMediaSource(uri, mainHandler, mediaSouceListener);
+                        .createMediaSource(uri, mainHandler, eventLogger);
             case C.TYPE_HLS:
                 return new HlsMediaSource.Factory(buildDataSourceFactory(useBandwidthMeter))
-                        .createMediaSource(uri, mainHandler, mediaSouceListener);
+                        .createMediaSource(uri, mainHandler, eventLogger);
             case C.TYPE_OTHER:
                 return new ExtractorMediaSource.Factory(buildDataSourceFactory(useBandwidthMeter))
-                        .createMediaSource(uri, mainHandler, mediaSouceListener);
+                        .createMediaSource(uri, mainHandler, eventLogger);
             default: {
                 throw new IllegalStateException("Unsupported type: " + type);
             }
-        }
-    }
-
-    private static class MediaSouceListener implements MediaSourceEventListener {
-
-        @Override
-        public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
-            Log.d(TAG, "onLoadStarted dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" +
-                    trackSelectionReason + "] trackSelectionData [" + trackSelectionData + "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "]");
-        }
-
-        @Override
-        public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-            Log.d(TAG, "onLoadCompleted dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
-                    "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "]");
-        }
-
-        @Override
-        public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-            Log.d(TAG, "onLoadCanceled dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
-                    "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "]");
-        }
-
-        @Override
-        public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
-            Log.d(TAG, "onLoadError dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
-                    "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "] error [" + error.getMessage() + "] wasCanceled [" + wasCanceled + "]");
-        }
-
-        @Override
-        public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
-            Log.e(TAG, "onUpstreamDiscarded trackType [" + trackType + "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs ["+ mediaEndTimeMs + "]");
-        }
-
-        @Override
-        public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaTimeMs) {
-            Log.e(TAG, "onDownstreamFormatChanged trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason ["+ trackSelectionReason
-                    + "] trackSelectionData [" + trackSelectionData + "] mediaTimeMs ["+ mediaTimeMs + "]");
         }
     }
 

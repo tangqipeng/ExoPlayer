@@ -84,6 +84,10 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
   // Player.EventListener
 
+  /**
+   * 这个是影片缓冲的开始与结束
+   * @param isLoading true 开始缓冲下一个阶段的ts片 false 缓冲完成结束
+   */
   @Override
   public void onLoadingChanged(boolean isLoading) {
     Log.d(TAG, "loading [" + isLoading + "]");
@@ -116,6 +120,11 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
         "[speed=%.2f, pitch=%.2f]", playbackParameters.speed, playbackParameters.pitch));
   }
 
+  /**
+   * 像播放器注入数据的时候会调用
+   * @param timeline
+   * @param manifest
+   */
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest) {
     int periodCount = timeline.getPeriodCount();
@@ -144,6 +153,11 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     Log.e(TAG, "playerFailed [" + getSessionTimeString() + "]", e);
   }
 
+  /**
+   * 播放新地址一开始会调用
+   * @param ignored
+   * @param trackSelections
+   */
   @Override
   public void onTracksChanged(TrackGroupArray ignored, TrackSelectionArray trackSelections) {
     MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
@@ -210,6 +224,9 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     Log.d(TAG, "]");
   }
 
+  /**
+   * seek后调用
+   */
   @Override
   public void onSeekProcessed() {
     Log.d(TAG, "seekProcessed");
@@ -324,50 +341,44 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
   // MediaSourceEventListener
 
   @Override
-  public void onLoadStarted(
-      DataSpec dataSpec,
-      int dataType,
-      int trackType,
-      Format trackFormat,
-      int trackSelectionReason,
-      Object trackSelectionData,
-      long mediaStartTimeMs,
-      long mediaEndTimeMs,
-      long elapsedRealtimeMs) {
+  public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
     // Do nothing.
+    Log.d(TAG, "onLoadStarted dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" +
+            trackSelectionReason + "] trackSelectionData [" + trackSelectionData + "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "]");
   }
 
   @Override
-  public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-                          int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-                          long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded,
-                          IOException error, boolean wasCanceled) {
+  public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
     printInternalError("loadError", error);
+    Log.d(TAG, "onLoadError dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
+            "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "] error [" + error.getMessage() + "] wasCanceled [" + wasCanceled + "]");
   }
 
   @Override
-  public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-                             int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-                             long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+  public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
     // Do nothing.
+    Log.d(TAG, "onLoadCanceled dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
+            "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "]");
   }
 
   @Override
-  public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-                              int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-                              long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+  public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
     // Do nothing.
+    Log.d(TAG, "onLoadCompleted dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
+            "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "]");
   }
 
   @Override
   public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
     // Do nothing.
+    Log.e(TAG, "onUpstreamDiscarded trackType [" + trackType + "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs ["+ mediaEndTimeMs + "]");
   }
 
   @Override
-  public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason,
-                                        Object trackSelectionData, long mediaTimeMs) {
+  public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaTimeMs) {
     // Do nothing.
+    Log.e(TAG, "onDownstreamFormatChanged trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason ["+ trackSelectionReason
+            + "] trackSelectionData [" + trackSelectionData + "] mediaTimeMs ["+ mediaTimeMs + "]");
   }
 
   // AdsMediaSource.EventListener
