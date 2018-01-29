@@ -1250,11 +1250,11 @@ public class ExoPlayerControlView extends FrameLayout {
             /**
              * 这里的预览窗口要同步切换
              */
-            if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")) {
+            if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null && ExoPlayerUtils.getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")) {
                 preExoPlayer.seekTo(preExoPlayer.getNextWindowIndex(), 0);
             }
 
-            if (mSwitchoverWindow != null && getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")) {
+            if (mSwitchoverWindow != null && ExoPlayerUtils.getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")) {
                 mSwitchoverWindow.changeWindowIndex(player.getCurrentPeriodIndex());
             }
 
@@ -1346,21 +1346,6 @@ public class ExoPlayerControlView extends FrameLayout {
         ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         if (scrrenButton != null)
             scrrenButton.setBackgroundResource(smalllScreenButton);
-    }
-
-    private String getDiscontinuityReasonString(@Player.DiscontinuityReason int reason) {
-        switch (reason) {
-            case Player.DISCONTINUITY_REASON_PERIOD_TRANSITION:
-                return "PERIOD_TRANSITION";
-            case Player.DISCONTINUITY_REASON_SEEK:
-                return "SEEK";
-            case Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT:
-                return "SEEK_ADJUSTMENT";
-            case Player.DISCONTINUITY_REASON_INTERNAL:
-                return "INTERNAL";
-            default:
-                return "?";
-        }
     }
 
     /**

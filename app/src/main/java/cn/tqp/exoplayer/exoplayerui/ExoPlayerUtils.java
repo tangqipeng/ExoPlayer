@@ -11,6 +11,8 @@ import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.google.android.exoplayer2.Player;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
@@ -20,6 +22,46 @@ import java.lang.reflect.Method;
  */
 
 public class ExoPlayerUtils {
+
+    /**
+     * 播放状态
+     * @param state
+     * @return
+     */
+    public static String getStateString(int state) {
+        switch (state) {
+            case Player.STATE_BUFFERING:
+                return "B";
+            case Player.STATE_ENDED:
+                return "E";
+            case Player.STATE_IDLE:
+                return "I";
+            case Player.STATE_READY:
+                return "R";
+            default:
+                return "?";
+        }
+    }
+
+    /**
+     * 滑动进度，切换播放地址，初始化等状态
+     * @param reason
+     * @return
+     */
+    public static String getDiscontinuityReasonString(@Player.DiscontinuityReason int reason) {
+        switch (reason) {
+            case Player.DISCONTINUITY_REASON_PERIOD_TRANSITION:
+                return "PERIOD_TRANSITION";
+            case Player.DISCONTINUITY_REASON_SEEK:
+                return "SEEK";
+            case Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT:
+                return "SEEK_ADJUSTMENT";
+            case Player.DISCONTINUITY_REASON_INTERNAL:
+                return "INTERNAL";
+            default:
+                return "?";
+        }
+    }
 
     /**
      * 获取屏幕宽度

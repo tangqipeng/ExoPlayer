@@ -130,8 +130,8 @@ public class ExoPlayerManager {
     private SimpleExoPlayer createFullPlayer() {
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
         DefaultTrackSelector trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        LoadControl loadControl = new DefaultLoadControl();
-        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(playerView.getContext(), trackSelector, loadControl);
+//        LoadControl loadControl = new DefaultLoadControl();
+        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(playerView.getContext(), trackSelector);
         eventLogger = new EventLogger(trackSelector);
         player.setPlayWhenReady(true);
         ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);

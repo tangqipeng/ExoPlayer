@@ -221,6 +221,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     private final FrameLayout overlayFrameLayout;
     private ExoPlayerControlPanelView controlPanelView;
     private ExoPlayerLightAndSoundView mLightView;
+    private ExoPlayerLoadingView mLoadingView;
 
     private SimpleExoPlayer player;
     private boolean useController;
@@ -355,23 +356,11 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         addView(mLightView, lightParams);
         mLightView.setVisibility(GONE);
 
-        // Playback control view.
-//        ExoPlayerControlView customController = findViewById(R.id.exo_controller);
-//        View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
-//        if (customController != null) {
-//            this.controller = customController;
-//        } else if (controllerPlaceholder != null) {
-//            // Propagate attrs as playbackAttrs so that PlaybackControlView's custom attributes are
-//            // transferred, but standard FrameLayout attributes (e.g. background) are not.
-//            this.controller = new ExoPlayerControlView(context, null, 0, attrs);
-//            controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
-//            ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
-//            int controllerIndex = parent.indexOfChild(controllerPlaceholder);
-//            parent.removeView(controllerPlaceholder);
-//            parent.addView(controller, controllerIndex);
-//        } else {
-//            this.controller = null;
-//        }
+        mLoadingView = new ExoPlayerLoadingView(context);
+        FrameLayout.LayoutParams loadParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        loadParams.gravity = Gravity.CENTER;
+        addView(mLoadingView, loadParams);
+        mLoadingView.showLoading();
 
         ExoPlayerControlView customController = new ExoPlayerControlView(context, null, 0, attrs);
         if (customController != null) {
@@ -1101,6 +1090,21 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
 
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+            if (playbackState == Player.STATE_IDLE){
+                Log.i("PPPP", "STATE_IDLE");
+                mLoadingView.showLoading();
+            } else if (playbackState == Player.STATE_READY){
+                Log.i("PPPP", "STATE_READY");
+                mLoadingView.hideLoading();
+            } else if (playbackState == Player.STATE_BUFFERING){
+                Log.i("PPPP", "STATE_BUFFERING");
+                mLoadingView.showLoading();
+            } else if (playbackState == Player.STATE_ENDED){
+                Log.i("PPPP", "STATE_ENDED");
+            } else {
+                Log.i("PPPP", "?");
+            }
+
             if (isPlayingAd() && controllerHideDuringAds) {
                 hideController();
             } else {
