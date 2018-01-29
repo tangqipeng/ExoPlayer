@@ -13,31 +13,16 @@ import android.content.res.Configuration;
 
 public class ExoPlayerScreenOrientation {
 
-    private static boolean mIsNeedSensor = false;
+    public static boolean mIsNeedSensor = false;
 
-    private boolean mIsScreenLock = false;//是否锁屏
+    public static boolean mIsScreenLock = false;//是否锁屏
 
-    public static boolean getIsNeedSensor() {
-        return mIsNeedSensor;
-    }
-
-    public static void setSensor(boolean isNeedSensor) {
-        mIsNeedSensor = isNeedSensor;
-    }
 
     public static int getOrientationConfig(Context context) {
         if (context != null) {
             return ((Activity) context).getRequestedOrientation();
         }
         return -1;
-    }
-
-    public boolean isIsScreenLock() {
-        return mIsScreenLock;
-    }
-
-    public void setIsScreenLock(boolean mIsScreenLock) {
-        this.mIsScreenLock = mIsScreenLock;
     }
 
     /**

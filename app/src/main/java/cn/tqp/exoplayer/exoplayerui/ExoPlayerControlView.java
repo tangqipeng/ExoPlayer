@@ -135,6 +135,7 @@ public class ExoPlayerControlView extends FrameLayout {
     private final ImageView repeatToggleButton;
     private final View shuffleButton;
     private final View scrrenButton;
+    private final ImageView lockButton;
     private final TextView durationView;
     private final TextView positionView;
     private FrameLayout previewLayout;
@@ -317,6 +318,12 @@ public class ExoPlayerControlView extends FrameLayout {
         scrrenButton = findViewById(R.id.exo_resize_screen);
         if (scrrenButton != null) {
             scrrenButton.setOnClickListener(componentListener);
+        }
+        lockButton = findViewById(R.id.image_lock);
+        if (lockButton != null) {
+            lockButton.setImageResource(R.mipmap.orientation_lock_close);
+            Log.i("FFFF", "lockButton componentListener:");
+            lockButton.setOnClickListener(componentListener);
         }
 
         if (showPreviewButton) {
@@ -1278,6 +1285,15 @@ public class ExoPlayerControlView extends FrameLayout {
                         setOrientationChangeToPortrait();
                     } else if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {//竖屏
                         setOrientationChangeToLandscape();
+                    }
+                } else if (lockButton == view){
+                    Log.i("FFFF", "lockButton ExoPlayerScreenOrientation.isIsScreenLock():"+ExoPlayerScreenOrientation.mIsScreenLock);
+                    if (ExoPlayerScreenOrientation.mIsScreenLock){
+                        ExoPlayerScreenOrientation.mIsScreenLock = false;
+                        lockButton.setImageResource(R.mipmap.orientation_lock_close);
+                    }else{
+                        ExoPlayerScreenOrientation.mIsScreenLock = true;
+                        lockButton.setImageResource(R.mipmap.orientation_lock_open);
                     }
                 }
             }

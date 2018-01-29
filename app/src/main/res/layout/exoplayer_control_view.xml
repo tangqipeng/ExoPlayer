@@ -40,7 +40,6 @@
             android:layout_alignParentRight="true"
             android:textColor="@color/colorWhite"
             android:gravity="center"
-            android:text="@string/app_name"
             android:textSize="@dimen/text_11" />
 
         <ImageView
@@ -48,8 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginRight="@dimen/base_dimen_15"
-            android:layout_toLeftOf="@+id/txt_battery"
-            android:src="@drawable/play_ctrl_back" />
+            android:layout_toLeftOf="@+id/txt_battery" />
 
         <TextView
             android:id="@+id/txt_date"
@@ -59,7 +57,6 @@
             android:layout_toLeftOf="@+id/image_battery"
             android:textColor="@color/colorWhite"
             android:gravity="center"
-            android:text="@string/app_name"
             android:textSize="@dimen/text_11"/>
 
     </RelativeLayout>
@@ -193,6 +190,15 @@
             android:layout_marginRight="@dimen/base_dimen_30"
             android:src="@drawable/full" />
     </LinearLayout>
+
+
+    <ImageView
+        android:id="@+id/image_lock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/base_dimen_60"
+        android:src="@mipmap/orientation_lock_open"/>
 
 
 </RelativeLayout>

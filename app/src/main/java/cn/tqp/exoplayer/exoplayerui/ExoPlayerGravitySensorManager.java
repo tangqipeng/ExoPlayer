@@ -21,22 +21,13 @@ public class ExoPlayerGravitySensorManager {
     private int lastScreenOreintation = -1;
     private int currentScreenOreintation = 0;
 
-    private boolean mIsScreenLock = false;//是否锁屏
     private boolean mIsGravity;
-
-    public void setLockScreen(boolean lock) {
-        mIsScreenLock = lock;
-    }
-
-    public boolean isScreenLocked() {
-        return mIsScreenLock;
-    }
 
     private class VDGravitySensorEventListener implements SensorEventListener {
 
         @Override
         public void onSensorChanged(SensorEvent event) {
-            if (!ExoPlayerScreenOrientation.getIsNeedSensor() || isScreenLocked()) {
+            if (!ExoPlayerScreenOrientation.mIsNeedSensor || ExoPlayerScreenOrientation.mIsScreenLock) {
                 return;
             }
 //            mIsGravity = getSystemGravity(mContext);

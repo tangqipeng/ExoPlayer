@@ -356,22 +356,32 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         mLightView.setVisibility(GONE);
 
         // Playback control view.
-        ExoPlayerControlView customController = findViewById(R.id.exo_controller);
-        View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
+//        ExoPlayerControlView customController = findViewById(R.id.exo_controller);
+//        View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
+//        if (customController != null) {
+//            this.controller = customController;
+//        } else if (controllerPlaceholder != null) {
+//            // Propagate attrs as playbackAttrs so that PlaybackControlView's custom attributes are
+//            // transferred, but standard FrameLayout attributes (e.g. background) are not.
+//            this.controller = new ExoPlayerControlView(context, null, 0, attrs);
+//            controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
+//            ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
+//            int controllerIndex = parent.indexOfChild(controllerPlaceholder);
+//            parent.removeView(controllerPlaceholder);
+//            parent.addView(controller, controllerIndex);
+//        } else {
+//            this.controller = null;
+//        }
+
+        ExoPlayerControlView customController = new ExoPlayerControlView(context, null, 0, attrs);
         if (customController != null) {
             this.controller = customController;
-        } else if (controllerPlaceholder != null) {
-            // Propagate attrs as playbackAttrs so that PlaybackControlView's custom attributes are
-            // transferred, but standard FrameLayout attributes (e.g. background) are not.
+        }else{
             this.controller = new ExoPlayerControlView(context, null, 0, attrs);
-            controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
-            ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
-            int controllerIndex = parent.indexOfChild(controllerPlaceholder);
-            parent.removeView(controllerPlaceholder);
-            parent.addView(controller, controllerIndex);
-        } else {
-            this.controller = null;
         }
+        FrameLayout.LayoutParams controlParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        addView(customController, controlParams);
+
         this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
         this.controllerHideOnTouch = controllerHideOnTouch;
         this.controllerAutoShow = controllerAutoShow;
@@ -386,7 +396,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
             sensorManager = new ExoPlayerGravitySensorManager();
             sensorManager.register(mContext);
             sensorManager.setPlayerGravitySensorListener(this);
-            ExoPlayerScreenOrientation.setSensor(true);
+            ExoPlayerScreenOrientation.mIsNeedSensor = true;
         }
     }
 

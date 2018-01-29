@@ -135,6 +135,8 @@ public class ExoPlayerControlPanelView extends View {
 
         @Override
         public boolean onDoubleTap(MotionEvent e) {
+            if (ExoPlayerScreenOrientation.mIsScreenLock)
+                return false;
             handleDoubleTap(e);
             return super.onDoubleTap(e);
         }
@@ -147,7 +149,7 @@ public class ExoPlayerControlPanelView extends View {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (ExoPlayerScreenOrientation.getIsPortrait(mContext))
+            if (ExoPlayerScreenOrientation.getIsPortrait(mContext) || ExoPlayerScreenOrientation.mIsScreenLock)
                 return false;
             if (mPrePoint.equals(0.f, 0.f)) {
                 mPrePoint.set(e1.getRawX(), e1.getRawY());
