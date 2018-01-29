@@ -837,7 +837,7 @@ public class ExoPlayerControlView extends FrameLayout {
         if (positionView != null && !scrubbing) {
             positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
         }
-        if (timeBar != null) {
+        if (timeBar != null && !scrubbing) {
             timeBar.setPosition(position);
             timeBar.setBufferedPosition(bufferedPosition);
             timeBar.setDuration(duration);
@@ -1121,7 +1121,9 @@ public class ExoPlayerControlView extends FrameLayout {
             if (view instanceof SurfaceView) {
                 view.setVisibility(View.VISIBLE);
             }
-            timeBar.setPosition(position);
+            if (timeBar != null){
+                timeBar.setPosition(position);
+            }
         }
     }
 

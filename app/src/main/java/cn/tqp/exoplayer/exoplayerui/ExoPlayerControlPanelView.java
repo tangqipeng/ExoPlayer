@@ -205,7 +205,7 @@ public class ExoPlayerControlPanelView extends View {
         if (mGestureDetector.onTouchEvent(event)) {
             return true;
         }
-        if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
             if (mIsScrolling) {
                 if (mIsVertical) {
                     handleVerticalScrollFinish(null, null,
