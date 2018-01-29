@@ -93,10 +93,14 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     Log.d(TAG, "loading [" + isLoading + "]");
   }
 
+  /**
+   * 起播准备，初始化加载数据，出现buffer, 暂停，播放  都会调用这个接口
+   * @param playWhenReady true 播放 false 暂停
+   * @param state Player.STATE_IDLE  Player.STATE_READY  Player.STATE_BUFFERING  Player.STATE_ENDED
+   */
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int state) {
-    Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", "
-        + getStateString(state) + "]");
+    Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", " + getStateString(state) + "]");
   }
 
   @Override
@@ -109,6 +113,10 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     Log.d(TAG, "shuffleModeEnabled [" + shuffleModeEnabled + "]");
   }
 
+  /**
+   * 当注入多个播放地址时  手动切换，或自动（播放完成）切换到下一个地址时调用
+   * @param reason
+   */
   @Override
   public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
     Log.d(TAG, "positionDiscontinuity [" + getDiscontinuityReasonString(reason) + "]");
@@ -116,8 +124,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
   @Override
   public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-    Log.d(TAG, "playbackParameters " + String.format(
-        "[speed=%.2f, pitch=%.2f]", playbackParameters.speed, playbackParameters.pitch));
+    Log.d(TAG, "playbackParameters " + String.format("[speed=%.2f, pitch=%.2f]", playbackParameters.speed, playbackParameters.pitch));
   }
 
   /**
@@ -291,8 +298,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
   @Override
   public void onVideoInputFormatChanged(Format format) {
-    Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + Format.toLogString(format)
-        + "]");
+    Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + Format.toLogString(format) + "]");
   }
 
   @Override

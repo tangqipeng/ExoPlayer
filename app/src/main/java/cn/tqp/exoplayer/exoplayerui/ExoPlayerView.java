@@ -205,6 +205,7 @@ import cn.tqp.exoplayer.R;
 @TargetApi(16)
 public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.SwitchoverWindow, ExoPlayerListener.PlayerControlListener, ExoPlayerListener.PlayerGravitySensorListener {
 
+    private static final String TAG = "ExoPlayerView";
     private static final int SURFACE_TYPE_NONE = 0;
     private static final int SURFACE_TYPE_SURFACE_VIEW = 1;
     private static final int SURFACE_TYPE_TEXTURE_VIEW = 2;
@@ -1091,18 +1092,19 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
             if (playbackState == Player.STATE_IDLE){
-                Log.i("PPPP", "STATE_IDLE");
-                mLoadingView.showLoading();
+                if (mLoadingView != null)
+                    mLoadingView.showLoading();
             } else if (playbackState == Player.STATE_READY){
-                Log.i("PPPP", "STATE_READY");
-                mLoadingView.hideLoading();
+                if (mLoadingView != null)
+                    mLoadingView.hideLoading();
             } else if (playbackState == Player.STATE_BUFFERING){
-                Log.i("PPPP", "STATE_BUFFERING");
-                mLoadingView.showLoading();
+                if (mLoadingView != null)
+                    mLoadingView.showLoading();
             } else if (playbackState == Player.STATE_ENDED){
-                Log.i("PPPP", "STATE_ENDED");
+                if (mLoadingView != null)
+                    mLoadingView.hideLoading();
             } else {
-                Log.i("PPPP", "?");
+                Log.i(TAG, "?");
             }
 
             if (isPlayingAd() && controllerHideDuringAds) {
