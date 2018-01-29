@@ -80,7 +80,7 @@ public class ExoPlayerControlPanelView extends View {
     public ExoPlayerControlPanelView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        int level = -1;
+        int level = GESTURELEVELSINGLETAP | GESTURELEVELHORIZONSCROLL | GESTURELEVELVERTICALSCROLL | GESTURELEVELDOUBLETAP;
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ControlPanelContainer);
         for (int i = 0; i < typedArray.getIndexCount(); i++) {
             if (typedArray.getIndex(i) == R.styleable.ControlPanelContainer_gestureLevel) {
@@ -205,7 +205,7 @@ public class ExoPlayerControlPanelView extends View {
         if (mGestureDetector.onTouchEvent(event)) {
             return true;
         }
-        if (event.getAction() == MotionEvent.ACTION_UP) {
+        if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
             if (mIsScrolling) {
                 if (mIsVertical) {
                     handleVerticalScrollFinish(null, null,
@@ -246,7 +246,7 @@ public class ExoPlayerControlPanelView extends View {
 
     private void handleVerticalScrollFinish(final PointF point1, final PointF point2, final PointF beginPoint, float distansY) {
         if (checkLevel(GESTURELEVELVERTICALSCROLL)) {
-            notifyScreenVerticalScrollTouch(point1, point2, beginPoint, eFlag, distansY);
+            notifyScreenVerticalScrollTouch(point1, point2, beginPoint, eVerticalScrollTouchListener.eTouchListenerVerticalScrollEnd, distansY);
         }
     }
 
@@ -300,7 +300,6 @@ public class ExoPlayerControlPanelView extends View {
                                 mPlayerControlListener.notifyLightingVisible(true);
                             }
                         }
-
                         break;
 
                     case eTouchListenerVerticalScrollLighting:

@@ -15,6 +15,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -25,6 +26,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
@@ -220,6 +222,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     private final ComponentListener componentListener;
     private final FrameLayout overlayFrameLayout;
     private ExoPlayerControlPanelView controlPanelView;
+    private ExoPlayerLightView mLightView;
 
     private SimpleExoPlayer player;
     private boolean useController;
@@ -345,6 +348,12 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         layoutParams.setMargins(30, 100, 30, 100);
         addView(controlPanelView, layoutParams);
         controlPanelView.setPlayerControlListener(this);
+
+        mLightView = new ExoPlayerLightView(context);
+        FrameLayout.LayoutParams lightParams = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lightParams.gravity = Gravity.CENTER;
+        addView(mLightView, lightParams);
+        mLightView.setVisibility(GONE);
 
         // Playback control view.
         ExoPlayerControlView customController = findViewById(R.id.exo_controller);
@@ -1117,12 +1126,17 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
 
     @Override
     public void notifyLightingVisible(boolean isShow) {
-
+        Log.i("HHHH", "isShow:"+isShow);
+        if (isShow){
+            mLightView.setVisibility(VISIBLE);
+        }else {
+            mLightView.setVisibility(GONE);
+        }
     }
 
     @Override
     public void notifyLightingSetting(float curr) {
-
+        mLightView.setLightPercentage(curr);
     }
 
     @Override
