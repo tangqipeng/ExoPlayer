@@ -84,6 +84,9 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     private boolean isSeek = false;//是否seek
     private boolean isBuffer = false;//是否在预加载
     private boolean isPause = false;//是否暂停
+    private boolean isNetError = false;//是否网络异常
+    private long pausePosition = 0;
+    private long playCountTime = 0;
 
     public EventLogger(MappingTrackSelector trackSelector, ExoPlayerView exoPlayerView) {
         this.trackSelector = trackSelector;
@@ -131,11 +134,12 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
                         isPause = false;
                         Log.e(TAG, "state [" + getStateString(state) + "] after seek bufferTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
                     } else {//拖动用时
-                        Log.e(TAG, "state [" + getStateString(state) + "] seekTimeMs [" + (currentTimeMs - lastTimeMs) + "] seekEndPosition [" + mExoPlayerView.getSeekEndPosition() + "]");
+                        Log.e(TAG, "state [" + getStateString(state) + "] seekTimeMs [" + (currentTimeMs - lastTimeMs) + "] seekEndPosition [" + mExoPlayerView.getPlayer().getCurrentPosition() + "]");
                     }
                 }else{
                     if (isPause){
                         isPause = false;
+                        isNetError = false;
                         Log.e(TAG, "state [" + getStateString(state) + "] pauseTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
                     }
                 }
@@ -143,7 +147,13 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
             lastTimeMs = currentTimeMs;
         } else if (!playWhenReady && getStateString(state).equals("R")) {//准备完成正暂停中
             isPause = true;
-            Log.e(TAG, "state [" + getStateString(state) + "] playedTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
+            pausePosition = mExoPlayerView.getPlayer().getCurrentPosition();
+            if (isNetError){//网络异常导致暂停
+                Log.e(TAG, "state [" + getStateString(state) + "] NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
+            }else{//主动暂停
+                Log.e(TAG, "state [" + getStateString(state) + "] playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
+            }
+            playCountTime = playCountTime + (currentTimeMs - lastTimeMs);
             lastTimeMs = currentTimeMs;
         } else if (playWhenReady && getStateString(state).equals("B")) {//准备完成正缓冲中
             if (isPrepare) {
@@ -154,6 +164,20 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
                     isBuffer = true;
                 }
             }
+        } else if (playWhenReady && getStateString(state).equals("I")){
+            if (isNetError){
+                Log.e(TAG, "state [" + getStateString(state) + "] NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
+                lastTimeMs = currentTimeMs;
+                mExoPlayerView.getPlayer().setPlayWhenReady(false);
+            }
+        } else if (playWhenReady && getStateString(state).equals("E")){//播放完成当前播放器中所有的地址
+            pausePosition = mExoPlayerView.getPlayer().getCurrentPosition();
+            Log.e(TAG, "state [" + getStateString(state) + "] Completed playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] endPositon [" + mExoPlayerView.getPlayer().getCurrentPosition() + "]");
+            playCountTime = playCountTime + (currentTimeMs - lastTimeMs);
+            Log.w(TAG, "playCountTime:"+playCountTime);
+            lastTimeMs = currentTimeMs;
+            //todo 这里传入结束日志
+            playCountTime = 0;
         }
 
 
@@ -179,7 +203,15 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
         Log.d(TAG, "positionDiscontinuity [" + getDiscontinuityReasonString(reason) + "]");
         if (getDiscontinuityReasonString(reason).equals("SEEK")) {
             isSeek = true;
-            Log.e(TAG, "positionDiscontinuity [" + getDiscontinuityReasonString(reason) + "] seekStartPosition [" + mExoPlayerView.getPlayer().getCurrentPosition() + "]");
+            Log.e(TAG, "positionDiscontinuity [" + getDiscontinuityReasonString(reason) + "] seekStartPosition [" + pausePosition + "]");
+        }else if (getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")){
+            currentTimeMs = SystemClock.elapsedRealtime();
+            Log.e(TAG, "positionDiscontinuity [" + getDiscontinuityReasonString(reason) + "] Completed playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
+            playCountTime = playCountTime + (currentTimeMs - lastTimeMs);
+            Log.w(TAG, "playCountTime:"+playCountTime);
+            lastTimeMs = currentTimeMs;
+            //todo 这里传入结束日志
+            playCountTime = 0;
         }
     }
 
@@ -406,12 +438,17 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
+        isNetError = false;
         Log.d(TAG, "onLoadStarted dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" +
                 trackSelectionReason + "] trackSelectionData [" + trackSelectionData + "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "]");
     }
 
     @Override
     public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
+        isNetError = true;
+        mExoPlayerView.getPlayer().setPlayWhenReady(false);
+//        currentTimeMs = SystemClock.elapsedRealtime();
+//        Log.e(TAG, "onLoadError NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
         printInternalError("loadError", error);
         Log.d(TAG, "onLoadError dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
                 "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "] error [" + error.getMessage() + "] wasCanceled [" + wasCanceled + "]");
@@ -425,6 +462,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+        isNetError = false;
         Log.d(TAG, "onLoadCompleted dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
                 "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "]");
     }
@@ -436,7 +474,6 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaTimeMs) {
-        isPrepare = true;
         Log.e(TAG, "onDownstreamFormatChanged [" + isPrepare + "]");
         Log.d(TAG, "onDownstreamFormatChanged trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData + "] mediaTimeMs [" + mediaTimeMs + "]");
     }
