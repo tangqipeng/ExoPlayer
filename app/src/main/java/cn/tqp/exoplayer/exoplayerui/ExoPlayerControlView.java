@@ -155,6 +155,7 @@ public class ExoPlayerControlView extends FrameLayout {
 
     private SimpleExoPlayer preExoPlayer;
     private DefaultTrackSelector perTrackSelector;
+    private LoadControl mLoadControl;
     private MediaSource mPreviewMediaSource;
 
     private Player player;
@@ -429,8 +430,8 @@ public class ExoPlayerControlView extends FrameLayout {
 
             TrackSelection.Factory selection = new AdaptiveTrackSelection.Factory(null);
             perTrackSelector = new DefaultTrackSelector(selection);
-            LoadControl loadControl = new DefaultLoadControl();
-            preExoPlayer = ExoPlayerFactory.newSimpleInstance(mContext, perTrackSelector, loadControl);
+            mLoadControl = new DefaultLoadControl();
+            preExoPlayer = ExoPlayerFactory.newSimpleInstance(mContext, perTrackSelector, mLoadControl);
             preExoPlayer.setPlayWhenReady(false);
             preExoPlayer.setVolume(0f);
             preExoPlayer.prepare(mPreviewMediaSource);
@@ -1414,6 +1415,8 @@ public class ExoPlayerControlView extends FrameLayout {
             preExoPlayer.release();
             preExoPlayer = null;
             perTrackSelector = null;
+            mLoadControl.onReleased();
+            mLoadControl = null;
         }
     }
 

@@ -652,6 +652,16 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     }
 
     /**
+     * The position of the fast forward point.
+     */
+    public long getSeekEndPosition(){
+        if (this.controller != null) {
+            return this.controller.getPreViewCurrentPosition();
+        }
+        return 0;
+    }
+
+    /**
      * Returns the playback controls timeout. The playback controls are automatically hidden after
      * this duration of time has elapsed without user input and with playback or buffering in
      * progress.

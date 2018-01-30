@@ -50,7 +50,7 @@ public class ExoPlayerManager {
     private MediaSource[] mediaSources;
     private MediaSource[] previewMediaSources;
     private DefaultTrackSelector trackSelector;
-    private EventLogger eventLogger;
+    private EventLogger mEventLogger;
     private DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
     private Handler mainHandler = new Handler();
 
@@ -58,7 +58,7 @@ public class ExoPlayerManager {
         this.playerView = playerView;
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        eventLogger = new EventLogger(trackSelector);
+        mEventLogger = new EventLogger(trackSelector, playerView);
     }
 
     /**
@@ -82,9 +82,9 @@ public class ExoPlayerManager {
      */
     public void addVideoData(VideoInfo videoInfo){
         this.mVideoInfo = videoInfo;
-        List<VideoInfo> videoInfos = new ArrayList<>();
-        videoInfos.add(videoInfo);
-        playerView.setVideoInfoList(videoInfos);
+        mVideoInfoList = new ArrayList<>();
+        mVideoInfoList.add(videoInfo);
+        playerView.setVideoInfoList(mVideoInfoList);
         mediaSources = new MediaSource[1];
         previewMediaSources = new MediaSource[1];
         mediaSources[0] = addPlayMediaSouce(Uri.parse(mVideoInfo.movieUrl));
@@ -117,10 +117,11 @@ public class ExoPlayerManager {
 
     private void releasePlayers() {
         if (exoPlayer != null) {
+            exoPlayer.setPlayWhenReady(false);
+            exoPlayer.stop();
             exoPlayer.release();
             exoPlayer = null;
             playerView.release();
-            trackSelector = null;
         }
     }
 
@@ -145,7 +146,7 @@ public class ExoPlayerManager {
         player.setPlayWhenReady(true);
         ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);
         player.prepare(concatenatedSource);
-        player.addListener(eventLogger);
+        player.addListener(mEventLogger);
         return player;
     }
 
@@ -166,7 +167,7 @@ public class ExoPlayerManager {
      * @return
      */
     public MediaSource addPlayMediaSouce(Uri uri){
-        return buildMediaSource(uri, true);
+        return buildMediaSource(uri, true, mEventLogger);
     }
 
     /**
@@ -175,10 +176,10 @@ public class ExoPlayerManager {
      * @return
      */
     public MediaSource addPreviewMediaSouce(Uri uri){
-        return buildMediaSource(uri, false);
+        return buildMediaSource(uri, false, null);
     }
 
-    public MediaSource buildMediaSource(Uri uri, boolean useBandwidthMeter) {
+    public MediaSource buildMediaSource(Uri uri, boolean useBandwidthMeter, EventLogger eventLogger) {
         @C.ContentType
         int type = Util.inferContentType(uri);
         switch (type) {
