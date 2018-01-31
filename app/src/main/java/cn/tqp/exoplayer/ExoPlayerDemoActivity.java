@@ -30,33 +30,35 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exoplayer);
-        ExoPlayerUtils.hideActionBarAndBottomUiMenu(this);
+        //竖屏
+        getSupportActionBar().hide();
+        //横屏
+//        ExoPlayerUtils.hideActionBarAndBottomUiMenu(this);
 
         //常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         exoPlayerView = (ExoPlayerView) findViewById(R.id.exoplayerview);
 
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                if (android.os.Build.VERSION.SDK_INT > 18) {
-                    ((ViewGroup) exoPlayerView.getParent()).setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.INVISIBLE | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-                } else {
-                    ((ViewGroup) exoPlayerView.getParent()).setSystemUiVisibility(View.INVISIBLE);
-                }
-            }
-        });
+        //横屏
+//        new Handler().post(new Runnable() {
+//            @Override
+//            public void run() {
+//                if (android.os.Build.VERSION.SDK_INT > 18) {
+//                    ((ViewGroup) exoPlayerView.getParent()).setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.INVISIBLE | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+//                } else {
+//                    ((ViewGroup) exoPlayerView.getParent()).setSystemUiVisibility(View.INVISIBLE);
+//                }
+//            }
+//        });
 
         //竖屏加入这个
-//        int playerWidth = ExoPlayerUtils.getScreenWidth(this);
-//
-//        int playerHeight = playerWidth * 9 / 16;
-//
-//        ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, playerHeight);
-//
-//        exoPlayerView.setLayoutParams(layoutParams);
+        int playerWidth = ExoPlayerUtils.getScreenWidth(this);
+        int playerHeight = playerWidth * 9 / 16;
+        ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, playerHeight);
+        exoPlayerView.setLayoutParams(layoutParams);
 
+        //--------------------------------------------------------------------------
         //这句绝对不能少（再有大小屏切换的时候，不需要大小屏切换可以不设置）最好是每次都设置
         exoPlayerView.setExoPlayerViewContainer((ViewGroup) exoPlayerView.getParent());
 

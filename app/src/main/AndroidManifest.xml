@@ -17,8 +17,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".ExoPlayerDemoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:launchMode="singleTop"
-            android:screenOrientation="sensorLandscape">
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

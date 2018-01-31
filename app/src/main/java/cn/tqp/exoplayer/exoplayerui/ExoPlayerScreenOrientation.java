@@ -13,7 +13,9 @@ import android.content.res.Configuration;
 
 public class ExoPlayerScreenOrientation {
 
-    public static boolean mIsNeedSensor = false;
+    public static boolean mIsNeedSensor = false;//可自由转化屏幕 （这个主要用于重力感应是否启动）
+
+    public static boolean mIsCanResize = false;//可变屏幕（这个主要用于全部的 可转屏幕大小的）
 
     public static boolean mIsScreenLock = false;//是否锁屏
 
