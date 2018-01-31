@@ -129,7 +129,7 @@ public class ExoPlayerManager {
         }
     }
 
-    private void destroy(){
+    public void destroy(){
         trackSelector = null;
         mLoadControl.onStopped();
         mLoadControl.onReleased();

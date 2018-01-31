@@ -387,6 +387,11 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
             sensorManager.register(mContext);
             sensorManager.setPlayerGravitySensorListener(this);
             ExoPlayerScreenOrientation.mIsNeedSensor = true;
+            if (this.controller != null)
+                this.controller.setResizeScreenButton(true);
+        }else{
+            if (this.controller != null)
+                this.controller.setResizeScreenButton(false);
         }
     }
 

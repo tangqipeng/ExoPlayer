@@ -179,6 +179,7 @@
             android:paddingRight="@dimen/base_dimen_8"
             android:textColor="#FFBEBEBE"
             android:textSize="@dimen/text_11"
+            android:layout_marginRight="@dimen/base_dimen_30"
             android:textStyle="bold" />
 
         <ImageView
@@ -186,7 +187,6 @@
             android:layout_width="@dimen/base_dimen_60"
             android:layout_height="@dimen/base_dimen_60"
             android:layout_alignParentRight="true"
-            android:layout_marginLeft="@dimen/base_dimen_20"
             android:layout_marginRight="@dimen/base_dimen_30"
             android:src="@drawable/full" />
     </LinearLayout>

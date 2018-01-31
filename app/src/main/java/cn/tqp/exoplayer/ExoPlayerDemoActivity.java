@@ -1,9 +1,11 @@
 package cn.tqp.exoplayer;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
@@ -28,20 +30,32 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exoplayer);
-        getSupportActionBar().hide();
+        ExoPlayerUtils.hideActionBarAndBottomUiMenu(this);
 
         //常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         exoPlayerView = (ExoPlayerView) findViewById(R.id.exoplayerview);
 
-        int playerWidth = ExoPlayerUtils.getScreenWidth(this);
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (android.os.Build.VERSION.SDK_INT > 18) {
+                    ((ViewGroup) exoPlayerView.getParent()).setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.INVISIBLE | View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                } else {
+                    ((ViewGroup) exoPlayerView.getParent()).setSystemUiVisibility(View.INVISIBLE);
+                }
+            }
+        });
 
-        int playerHeight = playerWidth * 9 / 16;
-
-        ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, playerHeight);
-
-        exoPlayerView.setLayoutParams(layoutParams);
+        //竖屏加入这个
+//        int playerWidth = ExoPlayerUtils.getScreenWidth(this);
+//
+//        int playerHeight = playerWidth * 9 / 16;
+//
+//        ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, playerHeight);
+//
+//        exoPlayerView.setLayoutParams(layoutParams);
 
         //这句绝对不能少（再有大小屏切换的时候，不需要大小屏切换可以不设置）最好是每次都设置
         exoPlayerView.setExoPlayerViewContainer((ViewGroup) exoPlayerView.getParent());
@@ -58,24 +72,17 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
 
         VideoInfo videoInfo1 = new VideoInfo();
         videoInfo1.movieId = "2";
-        videoInfo1.movieTitle = "TLC";
+        videoInfo1.movieTitle = "TCL";
         videoInfo1.movieUrl = getResources().getString(R.string.url_hls1);
         videoInfo1.moviePreviewUrl = getResources().getString(R.string.url_hls1);
         videoInfos.add(videoInfo1);
 
         VideoInfo videoInfo2 = new VideoInfo();
-        videoInfo2.movieId = "3";
-        videoInfo2.movieTitle = "TLC";
-        videoInfo2.movieUrl = getResources().getString(R.string.url_hls1);
-        videoInfo2.moviePreviewUrl = getResources().getString(R.string.url_hls1);
+        videoInfo2.movieId = "2";
+        videoInfo2.movieTitle = "怪奇物语";
+        videoInfo2.movieUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/zufudechengfa_iframe.m3u8";
+        videoInfo2.moviePreviewUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/201801/PIQvhUGb/pqczrawfwM.m3u8";
         videoInfos.add(videoInfo2);
-
-        VideoInfo videoInfo3 = new VideoInfo();
-        videoInfo3.movieId = "4";
-        videoInfo3.movieTitle = "怪奇物语";
-        videoInfo3.movieUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/zufudechengfa_iframe.m3u8";
-        videoInfo3.moviePreviewUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/201801/PIQvhUGb/pqczrawfwM.m3u8";
-        videoInfos.add(videoInfo3);
 
         exoPlayerManager.addVideoDatas(videoInfos);
 
@@ -108,5 +115,6 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        exoPlayerManager.destroy();
     }
 }

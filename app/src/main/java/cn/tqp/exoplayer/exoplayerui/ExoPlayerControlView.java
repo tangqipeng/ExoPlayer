@@ -1304,7 +1304,7 @@ public class ExoPlayerControlView extends FrameLayout {
         public void onClick(View view) {
             if (player != null) {
                 if (backButton == view) {
-                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {//横屏
+                    if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && ExoPlayerScreenOrientation.mIsNeedSensor) {//横屏
                         ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                         scrrenButton.setBackgroundResource(fullScreenButton);
                     } else {
