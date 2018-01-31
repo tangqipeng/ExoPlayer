@@ -1,11 +1,9 @@
 package cn.tqp.exoplayer;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
@@ -15,6 +13,7 @@ import java.util.List;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerManager;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerUtils;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
+import cn.tqp.exoplayer.exoplayerui.PreviewImage;
 import cn.tqp.exoplayer.exoplayerui.VideoInfo;
 
 /**
@@ -73,24 +72,48 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
         videoInfo.movieId = "1";
         videoInfo.movieTitle = "银河护卫队";
         videoInfo.movieUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
-//        videoInfo.moviePreviewUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
-        videoInfo.moviePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
+        videoInfo.moviePreviewUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
+        videoInfo.imageCount = 42;
+        List<PreviewImage> previewImages = new ArrayList<>();
+        PreviewImage previewImage = new PreviewImage();
+        previewImage.imagePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
+        previewImage.imageSize = 42;
+        previewImage.lines = 7;
+        previewImage.colums = 7;
+        previewImages.add(previewImage);
+        videoInfo.previewImagesList = previewImages;
         videoInfos.add(videoInfo);
 
         VideoInfo videoInfo1 = new VideoInfo();
         videoInfo1.movieId = "2";
         videoInfo1.movieTitle = "TCL";
         videoInfo1.movieUrl = getResources().getString(R.string.url_hls1);
-//        videoInfo1.moviePreviewUrl = getResources().getString(R.string.url_hls1);
-        videoInfo1.moviePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
+        videoInfo1.moviePreviewUrl = getResources().getString(R.string.url_hls1);
+        videoInfo1.imageCount = 42;
+        List<PreviewImage> previewImages1 = new ArrayList<>();
+        PreviewImage previewImage1 = new PreviewImage();
+        previewImage1.imagePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
+        previewImage1.imageSize = 42;
+        previewImage1.lines = 7;
+        previewImage1.colums = 7;
+        previewImages1.add(previewImage1);
+        videoInfo1.previewImagesList = previewImages1;
         videoInfos.add(videoInfo1);
 
         VideoInfo videoInfo2 = new VideoInfo();
         videoInfo2.movieId = "2";
         videoInfo2.movieTitle = "怪奇物语";
         videoInfo2.movieUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/zufudechengfa_iframe.m3u8";
-//        videoInfo2.moviePreviewUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/201801/PIQvhUGb/pqczrawfwM.m3u8";
-        videoInfo2.moviePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
+        videoInfo2.moviePreviewUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/201801/PIQvhUGb/pqczrawfwM.m3u8";
+        videoInfo2.imageCount = 42;
+        List<PreviewImage> previewImages2 = new ArrayList<>();
+        PreviewImage previewImage2 = new PreviewImage();
+        previewImage2.imagePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
+        previewImage2.imageSize = 42;
+        previewImage2.lines = 7;
+        previewImage2.colums = 7;
+        previewImages2.add(previewImage2);
+        videoInfo2.previewImagesList = previewImages2;
         videoInfos.add(videoInfo2);
 
 //        exoPlayerManager.addVideoDatas(videoInfos);

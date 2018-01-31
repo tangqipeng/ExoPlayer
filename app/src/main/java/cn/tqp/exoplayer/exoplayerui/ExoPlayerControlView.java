@@ -262,9 +262,11 @@ public class ExoPlayerControlView extends FrameLayout {
         bottomContainer = findViewById(R.id.bottom_container);
         if (topContainer != null) {
             topContainer.setBackgroundResource(topContainerBackgyound);
+            topContainer.setOnClickListener(componentListener);
         }
         if (bottomContainer != null) {
             bottomContainer.setBackgroundResource(bottomContainerBackgyound);
+            bottomContainer.setOnClickListener(componentListener);
         }
 
         backButton = findViewById(R.id.image_back);
@@ -462,6 +464,10 @@ public class ExoPlayerControlView extends FrameLayout {
             FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             layoutParams.setMargins(2, 1, 2, 1);
             previewLayout.addView(mImageView, layoutParams);
+            Log.i("PPPP", "player.getRendererCount():"+player.getRendererCount());
+            for (PreviewImage image : mPreviewVideo.get(0).previewImagesList){
+                GlideApp.with(mImageView).load(image.imagePreviewUrl).into(mImageView);
+            }
         }
     }
 
@@ -1247,11 +1253,23 @@ public class ExoPlayerControlView extends FrameLayout {
             }
             seekPosition = position;
             previewLayout.setVisibility(View.VISIBLE);
-            GlideApp.with(mImageView)
-                    .load(mPreviewVideo.get(player.getCurrentWindowIndex()).moviePreviewUrl)
-                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                    .transform(new GlideThumbnailTransformation(position, ((int)player.getDuration() / 42), 7, 7))
-                    .into(mImageView);
+
+            long thumbnails_each_time = (long)(player.getDuration() / mPreviewVideo.get(player.getCurrentWindowIndex()).imageCount);
+
+            int index = (int)(position / thumbnails_each_time / mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(0).imageSize);
+
+            Log.i("PPPP", "index:"+index + "   position:"+position+"  thumbnails_each_time:"+thumbnails_each_time + "   player.getDuration():"+player.getDuration());
+
+            if (index < mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.size()) {
+                String imageUrl = mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(index).imagePreviewUrl;
+
+                GlideApp.with(mImageView)
+                        .load(imageUrl)
+                        .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                        .transform(new GlideThumbnailTransformation(position, ((int) player.getDuration() / mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(0).imageSize),
+                                mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(0).lines, mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(0).colums))
+                        .into(mImageView);
+            }
         }
     }
 
