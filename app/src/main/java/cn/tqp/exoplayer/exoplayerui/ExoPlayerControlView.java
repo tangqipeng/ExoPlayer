@@ -30,6 +30,7 @@ import android.widget.TextView;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.LoadControl;
@@ -431,7 +432,7 @@ public class ExoPlayerControlView extends FrameLayout {
             TrackSelection.Factory selection = new AdaptiveTrackSelection.Factory(null);
             perTrackSelector = new DefaultTrackSelector(selection);
             mLoadControl = new DefaultLoadControl();
-            preExoPlayer = ExoPlayerFactory.newSimpleInstance(mContext, perTrackSelector, mLoadControl);
+            preExoPlayer = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(mContext), perTrackSelector, mLoadControl);
             preExoPlayer.setPlayWhenReady(false);
             preExoPlayer.setVolume(0f);
             preExoPlayer.prepare(mPreviewMediaSource);
@@ -1153,6 +1154,16 @@ public class ExoPlayerControlView extends FrameLayout {
     }
 
     /**
+     * 当前滑动到的位置
+     */
+    private long seekPosition = 0;
+
+    private long lastSeekPosition = 0;
+
+    private long lastSeekTime = 0;
+    private long currentSeekTime = 0;
+
+    /**
      * To start fast-forward, set the preview window.
      */
     public void seekStartPreview(){
@@ -1161,34 +1172,56 @@ public class ExoPlayerControlView extends FrameLayout {
         if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
             if (player != null && player instanceof SimpleExoPlayer) {
                 player.setPlayWhenReady(false);
+                seekPosition = player.getCurrentPosition();
                 preExoPlayer.seekTo(player.getCurrentPosition());
                 preExoPlayer.setPlayWhenReady(false);
+                View view = preView.getVideoSurfaceView();
+                if (view instanceof SurfaceView) {
+                    view.setVisibility(View.VISIBLE);
+                }
             }
             previewLayout.setVisibility(View.VISIBLE);
         }
     }
 
+    /**
+     * Fast-forward to change progress.
+     * @param position
+     */
     public void seekChangePreview(long position){
         if (positionView != null) {
             positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
         }
         if (showPreviewButton && previewLayout != null && preView != null && mPreviewMediaSource != null) {
-            preExoPlayer.seekTo(position);
-            preExoPlayer.setPlayWhenReady(false);
-            View view = preView.getVideoSurfaceView();
-            if (view instanceof SurfaceView) {
-                view.setVisibility(View.VISIBLE);
-            }
             if (timeBar != null){
                 timeBar.setPosition(position);
+            }
+            Log.i("GGGG", "position:"+position);
+            seekPosition = position;
+            currentSeekTime = SystemClock.elapsedRealtime();
+            if (currentSeekTime - lastSeekTime > 3000 || seekPosition - lastSeekPosition > 10000) {//这里是两种显示，第一种是上次seek的时间与这次相隔3秒，或者滑动的距离超过10s
+                preExoPlayer.seekTo(position);
+                preExoPlayer.setPlayWhenReady(false);
+                View view = preView.getVideoSurfaceView();
+                if (view instanceof SurfaceView) {
+                    view.setVisibility(View.VISIBLE);
+                }
+                lastSeekTime = currentSeekTime;
+                lastSeekPosition = seekPosition;
             }
         }
     }
 
     public long getPreViewCurrentPosition(){
-        return preExoPlayer.getCurrentPosition();
+//        return preExoPlayer.getCurrentPosition();
+        return seekPosition;
     }
 
+    /**
+     * Fast forward to end
+     * @param position
+     * @param canceled
+     */
     public void seekEndPreview(long position, boolean canceled){
         scrubbing = false;
         if (!canceled && player != null) {

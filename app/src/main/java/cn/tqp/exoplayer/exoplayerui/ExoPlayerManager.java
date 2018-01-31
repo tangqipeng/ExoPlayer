@@ -8,6 +8,7 @@ import android.widget.FrameLayout;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
@@ -23,6 +24,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -49,8 +51,9 @@ public class ExoPlayerManager {
     private VideoInfo mVideoInfo;
     private MediaSource[] mediaSources;
     private MediaSource[] previewMediaSources;
-    private DefaultTrackSelector trackSelector;
+    private TrackSelector trackSelector;
     private EventLogger mEventLogger;
+    private LoadControl mLoadControl;
     private DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
     private Handler mainHandler = new Handler();
 
@@ -58,7 +61,8 @@ public class ExoPlayerManager {
         this.playerView = playerView;
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        mEventLogger = new EventLogger(trackSelector, playerView);
+        mEventLogger = new EventLogger((MappingTrackSelector)trackSelector, playerView);
+        mLoadControl = new DefaultLoadControl();
     }
 
     /**
@@ -125,6 +129,13 @@ public class ExoPlayerManager {
         }
     }
 
+    private void destroy(){
+        trackSelector = null;
+        mLoadControl.onStopped();
+        mLoadControl.onReleased();
+        mLoadControl = null;
+    }
+
     private void createPlayers() {
         if (exoPlayer != null) {
             exoPlayer.release();
@@ -141,8 +152,8 @@ public class ExoPlayerManager {
     }
 
     private SimpleExoPlayer createFullPlayer() {
-//        LoadControl loadControl = new DefaultLoadControl();
-        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(playerView.getContext(), trackSelector);
+//        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(playerView.getContext(), trackSelector);
+        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(playerView.getContext()), trackSelector, mLoadControl);
         player.setPlayWhenReady(true);
         ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);
         player.prepare(concatenatedSource);
