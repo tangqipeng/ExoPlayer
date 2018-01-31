@@ -1247,11 +1247,10 @@ public class ExoPlayerControlView extends FrameLayout {
             }
             seekPosition = position;
             previewLayout.setVisibility(View.VISIBLE);
-            Log.i("PPPP", "player.getCurrentWindowIndex():"+player.getCurrentWindowIndex());
             GlideApp.with(mImageView)
                     .load(mPreviewVideo.get(player.getCurrentWindowIndex()).moviePreviewUrl)
                     .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                    .transform(new GlideThumbnailTransformation(position))
+                    .transform(new GlideThumbnailTransformation(position, ((int)player.getDuration() / 42), 7, 7))
                     .into(mImageView);
         }
     }

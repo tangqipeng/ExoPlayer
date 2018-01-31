@@ -28,14 +28,16 @@ import java.security.MessageDigest;
 
 public class GlideThumbnailTransformation extends BitmapTransformation {
 
-    public static final int MAX_LINES = 7;
-    public static final int MAX_COLUMNS = 7;
-    public static final int THUMBNAILS_EACH = 5000; // millisseconds
-
+    private int MAX_LINES;
+    private int MAX_COLUMNS;
+    private int THUMBNAILS_EACH;
     private int x;
     private int y;
 
-    public GlideThumbnailTransformation(long position) {
+    public GlideThumbnailTransformation(long position, int thumbnails_each, int lines, int colums) {
+        this.MAX_LINES = lines;
+        this.MAX_COLUMNS = colums;
+        this.THUMBNAILS_EACH = thumbnails_each;
         int square = (int) position / THUMBNAILS_EACH;
         y = square / MAX_LINES;
         x = square % MAX_COLUMNS;
