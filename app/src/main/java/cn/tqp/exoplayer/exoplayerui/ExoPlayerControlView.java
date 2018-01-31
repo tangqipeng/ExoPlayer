@@ -1196,7 +1196,6 @@ public class ExoPlayerControlView extends FrameLayout {
             if (timeBar != null){
                 timeBar.setPosition(position);
             }
-            Log.i("GGGG", "position:"+position);
             seekPosition = position;
             currentSeekTime = SystemClock.elapsedRealtime();
             if (currentSeekTime - lastSeekTime > 3000 || seekPosition - lastSeekPosition > 10000) {//这里是两种显示，第一种是上次seek的时间与这次相隔3秒，或者滑动的距离超过10s
@@ -1296,9 +1295,6 @@ public class ExoPlayerControlView extends FrameLayout {
 
         @Override
         public void onTimelineChanged(Timeline timeline, Object manifest) {
-
-            Log.i("FFFF", "timeline.getWindowCount():" + timeline.getWindowCount());
-
             updateNavigation();
             updateTimeBarMode();
             updateProgress();
@@ -1344,7 +1340,6 @@ public class ExoPlayerControlView extends FrameLayout {
                         setOrientationChangeToLandscape();
                     }
                 } else if (lockButton == view){
-                    Log.i("FFFF", "lockButton ExoPlayerScreenOrientation.isIsScreenLock():"+ExoPlayerScreenOrientation.mIsScreenLock);
                     if (ExoPlayerScreenOrientation.mIsScreenLock){
                         ExoPlayerScreenOrientation.mIsScreenLock = false;
                         lockButton.setImageResource(R.mipmap.orientation_lock_close);
