@@ -81,6 +81,19 @@ public class ExoPlayerManager {
     }
 
     /**
+     * 预览窗口是以图片的形式
+     * @param videoInfoList
+     */
+    public void addVideoDatasAndPreviewImages(List<VideoInfo> videoInfoList){
+        this.mVideoInfoList = videoInfoList;
+        playerView.setVideoInfoList(videoInfoList);
+        mediaSources = new MediaSource[mVideoInfoList.size()];
+        for (int i = 0; i < mVideoInfoList.size(); i ++){
+            mediaSources[i] = addPlayMediaSouce(Uri.parse(mVideoInfoList.get(i).movieUrl));
+        }
+    }
+
+    /**
      * 一次加入单个数据
      * @param videoInfo
      */
@@ -142,17 +155,20 @@ public class ExoPlayerManager {
             exoPlayer = null;
         }
         if (mVideoInfoList != null && mVideoInfoList.size() > 0 && mediaSources != null
-                && mediaSources.length > 0 && previewMediaSources != null && previewMediaSources.length > 0){
+                && mediaSources.length > 0){
             exoPlayer = createFullPlayer();
             playerView.setPlayer(exoPlayer);
-            ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(previewMediaSources);
-            playerView.addPreviewMovieUrl(concatenatedSource);
+            if (previewMediaSources != null && previewMediaSources.length > 0) {
+                ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(previewMediaSources);
+                playerView.addPreviewMovieUrl(concatenatedSource);
+            }else{
+                playerView.addPreviewImagesUrl(mVideoInfoList);
+            }
             playerView.setMovieTitle(mVideoInfoList.get(0).movieTitle);
         }
     }
 
     private SimpleExoPlayer createFullPlayer() {
-//        SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(playerView.getContext(), trackSelector);
         SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(playerView.getContext()), trackSelector, mLoadControl);
         player.setPlayWhenReady(true);
         ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);

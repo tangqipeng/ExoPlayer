@@ -27,6 +27,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.request.target.Target;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -49,9 +50,12 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.util.Arrays;
 import java.util.Formatter;
+import java.util.List;
 import java.util.Locale;
 
 import cn.tqp.exoplayer.R;
+import cn.tqp.exoplayer.glide.GlideApp;
+import cn.tqp.exoplayer.glide.GlideThumbnailTransformation;
 
 /**
  * Created by tangqipeng on 2018/1/25.
@@ -141,6 +145,7 @@ public class ExoPlayerControlView extends FrameLayout {
     private final TextView positionView;
     private FrameLayout previewLayout;
     private SimpleExoPlayerView preView;
+    private ImageView mImageView;
     private final TimeBar timeBar;
     private final StringBuilder formatBuilder;
     private final Formatter formatter;
@@ -158,6 +163,7 @@ public class ExoPlayerControlView extends FrameLayout {
     private DefaultTrackSelector perTrackSelector;
     private LoadControl mLoadControl;
     private MediaSource mPreviewMediaSource;
+    private List<VideoInfo> mPreviewVideo;
 
     private Player player;
     private ExoControlDispatcher controlDispatcher;
@@ -399,16 +405,16 @@ public class ExoPlayerControlView extends FrameLayout {
      */
     public void addPreviewMediaSouces(MediaSource mediaSource) {
         this.mPreviewMediaSource = mediaSource;
-        if (preView != null) {
-            if (preExoPlayer != null) {
-                preExoPlayer.release();
-                preExoPlayer = null;
-                perTrackSelector = null;
-            }
-        } else {
-            preView = new SimpleExoPlayerView(mContext);
-        }
         if (showPreviewButton && previewLayout != null) {
+            if (preView != null) {
+                if (preExoPlayer != null) {
+                    preExoPlayer.release();
+                    preExoPlayer = null;
+                    perTrackSelector = null;
+                }
+            } else {
+                preView = new SimpleExoPlayerView(mContext);
+            }
             if (previewLayout.getChildCount() > 0) {
                 previewLayout.removeAllViews();
             }
@@ -437,6 +443,25 @@ public class ExoPlayerControlView extends FrameLayout {
             preExoPlayer.setVolume(0f);
             preExoPlayer.prepare(mPreviewMediaSource);
             preView.setPlayer(preExoPlayer);
+        }
+    }
+
+    /**
+     * add preview images
+     *
+     * @param videoInfos
+     */
+    public void addPreviewImageview(List<VideoInfo> videoInfos) {
+        this.mPreviewVideo = videoInfos;
+        if (showPreviewButton && previewLayout != null) {
+            mImageView = new ImageView(mContext);
+            if (previewLayout.getChildCount() > 0) {
+                previewLayout.removeAllViews();
+            }
+
+            FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            layoutParams.setMargins(2, 1, 2, 1);
+            previewLayout.addView(mImageView, layoutParams);
         }
     }
 
@@ -1182,6 +1207,12 @@ public class ExoPlayerControlView extends FrameLayout {
             }
             previewLayout.setVisibility(View.VISIBLE);
         }
+
+        if (showPreviewButton && previewLayout != null && mImageView != null && mPreviewVideo != null){
+            player.setPlayWhenReady(false);
+            seekPosition = player.getCurrentPosition();
+            previewLayout.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -1208,6 +1239,20 @@ public class ExoPlayerControlView extends FrameLayout {
                 lastSeekTime = currentSeekTime;
                 lastSeekPosition = seekPosition;
             }
+        }
+
+        if (showPreviewButton && previewLayout != null && mImageView != null && mPreviewVideo != null){
+            if (timeBar != null){
+                timeBar.setPosition(position);
+            }
+            seekPosition = position;
+            previewLayout.setVisibility(View.VISIBLE);
+            Log.i("PPPP", "player.getCurrentWindowIndex():"+player.getCurrentWindowIndex());
+            GlideApp.with(mImageView)
+                    .load(mPreviewVideo.get(player.getCurrentWindowIndex()).moviePreviewUrl)
+                    .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                    .transform(new GlideThumbnailTransformation(position))
+                    .into(mImageView);
         }
     }
 
@@ -1236,6 +1281,13 @@ public class ExoPlayerControlView extends FrameLayout {
                 view.setVisibility(View.INVISIBLE);
             }
             preExoPlayer.setPlayWhenReady(false);
+            previewLayout.setVisibility(View.GONE);
+        }
+
+        if (showPreviewButton && previewLayout != null && mImageView != null && mPreviewVideo != null){
+            if (player != null && player instanceof SimpleExoPlayer) {
+                player.setPlayWhenReady(true);
+            }
             previewLayout.setVisibility(View.GONE);
         }
     }

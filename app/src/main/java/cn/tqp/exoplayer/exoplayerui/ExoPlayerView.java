@@ -423,6 +423,16 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     }
 
     /**
+     * add preview images
+     * @param videoInfoList
+     */
+    public void addPreviewImagesUrl(List<VideoInfo> videoInfoList){
+        if (this.controller != null){
+            this.controller.addPreviewImageview(videoInfoList);
+        }
+    }
+
+    /**
      * set movie title
      */
     public void setMovieTitle(String name){
