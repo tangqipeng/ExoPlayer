@@ -64,29 +64,37 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
 
         exoPlayerManager = new ExoPlayerManager(exoPlayerView);
 
+        /**
+         * 这里说明 如果采用的预览窗口的资源是个播放地址，那么 videoInfo.moviePreviewUrl 就是播放地址，注入数据的方法是exoPlayerManager.addVideoDatas(videoInfos)；
+         * 如果预览窗口的资源是图片地址，那么videoInfo.moviePreviewUrl就是图片的地址，注入数据的方式是exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos)
+         */
         List<VideoInfo> videoInfos = new ArrayList<>();
         VideoInfo videoInfo = new VideoInfo();
         videoInfo.movieId = "1";
         videoInfo.movieTitle = "银河护卫队";
         videoInfo.movieUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
-        videoInfo.moviePreviewUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
+//        videoInfo.moviePreviewUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
+        videoInfo.moviePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
         videoInfos.add(videoInfo);
 
         VideoInfo videoInfo1 = new VideoInfo();
         videoInfo1.movieId = "2";
         videoInfo1.movieTitle = "TCL";
         videoInfo1.movieUrl = getResources().getString(R.string.url_hls1);
-        videoInfo1.moviePreviewUrl = getResources().getString(R.string.url_hls1);
+//        videoInfo1.moviePreviewUrl = getResources().getString(R.string.url_hls1);
+        videoInfo1.moviePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
         videoInfos.add(videoInfo1);
 
         VideoInfo videoInfo2 = new VideoInfo();
         videoInfo2.movieId = "2";
         videoInfo2.movieTitle = "怪奇物语";
         videoInfo2.movieUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/zufudechengfa_iframe.m3u8";
-        videoInfo2.moviePreviewUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/201801/PIQvhUGb/pqczrawfwM.m3u8";
+//        videoInfo2.moviePreviewUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/201801/PIQvhUGb/pqczrawfwM.m3u8";
+        videoInfo2.moviePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
         videoInfos.add(videoInfo2);
 
-        exoPlayerManager.addVideoDatas(videoInfos);
+//        exoPlayerManager.addVideoDatas(videoInfos);
+        exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos);
 
     }
 
