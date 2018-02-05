@@ -11,7 +11,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
@@ -56,6 +55,7 @@ import java.util.Locale;
 import cn.tqp.exoplayer.R;
 import cn.tqp.exoplayer.glide.GlideApp;
 import cn.tqp.exoplayer.glide.GlideThumbnailTransformation;
+import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 
 /**
  * Created by tangqipeng on 2018/1/25.

@@ -1,4 +1,4 @@
-package cn.tqp.exoplayer.exoplayerui;
+package cn.tqp.exoplayer.utils;
 
 import android.app.Activity;
 import android.content.Context;

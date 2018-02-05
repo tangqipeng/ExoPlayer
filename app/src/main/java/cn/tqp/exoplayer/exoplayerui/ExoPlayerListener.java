@@ -46,4 +46,12 @@ public class ExoPlayerListener {
 
     }
 
+    public interface PlayerActionListener {//都是行为的监听
+
+        void pauseTap();//手动暂停
+
+        void playTap();//手动开始
+
+    }
+
 }

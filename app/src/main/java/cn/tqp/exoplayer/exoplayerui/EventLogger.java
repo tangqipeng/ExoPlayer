@@ -54,6 +54,8 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import cn.tqp.exoplayer.utils.ExoPlayerUtils;
+
 /**
  * Logs player events using {@link Log}.
  */
@@ -200,13 +202,13 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
      */
     @Override
     public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
-        Log.d(TAG, "positionDiscontinuity [" + getDiscontinuityReasonString(reason) + "]");
-        if (getDiscontinuityReasonString(reason).equals("SEEK")) {
+        Log.d(TAG, "positionDiscontinuity [" + ExoPlayerUtils.getDiscontinuityReasonString(reason) + "]");
+        if (ExoPlayerUtils.getDiscontinuityReasonString(reason).equals("SEEK")) {
             isSeek = true;
-            Log.e(TAG, "positionDiscontinuity [" + getDiscontinuityReasonString(reason) + "] seekStartPosition [" + pausePosition + "]");
-        }else if (getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")){
+            Log.e(TAG, "positionDiscontinuity [" + ExoPlayerUtils.getDiscontinuityReasonString(reason) + "] seekStartPosition [" + pausePosition + "]");
+        }else if (ExoPlayerUtils.getDiscontinuityReasonString(reason).equals("PERIOD_TRANSITION")){
             currentTimeMs = SystemClock.elapsedRealtime();
-            Log.e(TAG, "positionDiscontinuity [" + getDiscontinuityReasonString(reason) + "] Completed playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
+            Log.e(TAG, "positionDiscontinuity [" + ExoPlayerUtils.getDiscontinuityReasonString(reason) + "] Completed playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
             playCountTime = playCountTime + (currentTimeMs - lastTimeMs);
             Log.w(TAG, "playCountTime:"+playCountTime);
             lastTimeMs = currentTimeMs;
@@ -249,6 +251,10 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
         Log.d(TAG, "]");
     }
 
+    /**
+     * 播放失败后
+     * @param e
+     */
     @Override
     public void onPlayerError(ExoPlaybackException e) {
         Log.e(TAG, "playerFailed [" + getSessionTimeString() + "]", e);
@@ -447,8 +453,6 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
         isNetError = true;
         mExoPlayerView.getPlayer().setPlayWhenReady(false);
-//        currentTimeMs = SystemClock.elapsedRealtime();
-//        Log.e(TAG, "onLoadError NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
         printInternalError("loadError", error);
         Log.d(TAG, "onLoadError dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
                 "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "] error [" + error.getMessage() + "] wasCanceled [" + wasCanceled + "]");
@@ -462,7 +466,10 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-        isNetError = false;
+        if (isNetError) {
+            isNetError = false;
+            mExoPlayerView.getPlayer().setPlayWhenReady(true);
+        }
         Log.d(TAG, "onLoadCompleted dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
                 "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "]");
     }
@@ -619,18 +626,4 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
         }
     }
 
-    private static String getDiscontinuityReasonString(@Player.DiscontinuityReason int reason) {
-        switch (reason) {
-            case Player.DISCONTINUITY_REASON_PERIOD_TRANSITION:
-                return "PERIOD_TRANSITION";
-            case Player.DISCONTINUITY_REASON_SEEK:
-                return "SEEK";
-            case Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT:
-                return "SEEK_ADJUSTMENT";
-            case Player.DISCONTINUITY_REASON_INTERNAL:
-                return "INTERNAL";
-            default:
-                return "?";
-        }
-    }
 }

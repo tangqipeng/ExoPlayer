@@ -21,8 +21,6 @@ public class ExoPlayerGravitySensorManager {
     private int lastScreenOreintation = -1;
     private int currentScreenOreintation = 0;
 
-    private boolean mIsGravity;
-
     private class VDGravitySensorEventListener implements SensorEventListener {
 
         @Override
@@ -30,17 +28,6 @@ public class ExoPlayerGravitySensorManager {
             if (!ExoPlayerScreenOrientation.mIsNeedSensor || ExoPlayerScreenOrientation.mIsScreenLock) {
                 return;
             }
-//            mIsGravity = getSystemGravity(mContext);
-//            Log.i("ExoPlayerGravity", "mIsGravity:"+mIsGravity);
-//            if (!mIsGravity) {
-//                if (ExoPlayerScreenOrientation.getIsPortrait(mContext)){
-//                    ExoPlayerScreenOrientation.setPortrait(mContext);
-//                }else if (ExoPlayerScreenOrientation.getIsLandscape(mContext)){
-//                    ExoPlayerScreenOrientation.setLandscape(mContext);
-//                }
-//                return;
-//            }
-            // TODO Auto-generated method stub
             float x = event.values[0]; // X轴
             float y = event.values[1]; // Y轴
             float z = event.values[2]; // Z轴
@@ -126,18 +113,6 @@ public class ExoPlayerGravitySensorManager {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        // mIsInSensor = false;
-    }
-
-    public static boolean getSystemGravity(Context context) {
-        int rotation;
-        try {
-            rotation = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION);
-        } catch (Settings.SettingNotFoundException settingnotfoundexception) {
-            settingnotfoundexception.printStackTrace();
-            return false;
-        }
-        return rotation != 0;
     }
 
     public ExoPlayerListener.PlayerGravitySensorListener mPlayerGravitySensorListener;

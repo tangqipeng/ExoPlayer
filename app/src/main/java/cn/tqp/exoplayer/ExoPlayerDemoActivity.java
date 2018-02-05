@@ -10,8 +10,8 @@ import android.view.WindowManager;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.tqp.exoplayer.exoplayerui.ExoPlayerManager;
-import cn.tqp.exoplayer.exoplayerui.ExoPlayerUtils;
+import cn.tqp.exoplayer.manager.ExoPlayerManager;
+import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
 import cn.tqp.exoplayer.exoplayerui.PreviewImage;
 import cn.tqp.exoplayer.exoplayerui.VideoInfo;
@@ -68,37 +68,38 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
          * 如果预览窗口的资源是图片地址，那么videoInfo.moviePreviewUrl就是图片的地址，注入数据的方式是exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos)
          */
         List<VideoInfo> videoInfos = new ArrayList<>();
-        VideoInfo videoInfo = new VideoInfo();
-        videoInfo.movieId = "1";
-        videoInfo.movieTitle = "银河护卫队";
-        videoInfo.movieUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
-        videoInfo.moviePreviewUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
-        videoInfo.imageCount = 42;
-        List<PreviewImage> previewImages = new ArrayList<>();
-        PreviewImage previewImage = new PreviewImage();
-        previewImage.imagePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
-        previewImage.imageSize = 42;
-        previewImage.lines = 7;
-        previewImage.colums = 7;
-        previewImages.add(previewImage);
-        videoInfo.previewImagesList = previewImages;
-        videoInfos.add(videoInfo);
 
-        VideoInfo videoInfo1 = new VideoInfo();
-        videoInfo1.movieId = "2";
-        videoInfo1.movieTitle = "TCL";
-        videoInfo1.movieUrl = getResources().getString(R.string.url_hls1);
-        videoInfo1.moviePreviewUrl = getResources().getString(R.string.url_hls1);
-        videoInfo1.imageCount = 42;
-        List<PreviewImage> previewImages1 = new ArrayList<>();
-        PreviewImage previewImage1 = new PreviewImage();
-        previewImage1.imagePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
-        previewImage1.imageSize = 42;
-        previewImage1.lines = 7;
-        previewImage1.colums = 7;
-        previewImages1.add(previewImage1);
-        videoInfo1.previewImagesList = previewImages1;
-        videoInfos.add(videoInfo1);
+//        VideoInfo videoInfo = new VideoInfo();
+//        videoInfo.movieId = "1";
+//        videoInfo.movieTitle = "银河护卫队";
+//        videoInfo.movieUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
+//        videoInfo.moviePreviewUrl = "http://cdn.ali.vcinema.com.cn/201709/xtMHgEOw/xOmtuUUGLj.m3u8";
+//        videoInfo.imageCount = 42;
+//        List<PreviewImage> previewImages = new ArrayList<>();
+//        PreviewImage previewImage = new PreviewImage();
+//        previewImage.imagePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
+//        previewImage.imageSize = 42;
+//        previewImage.lines = 7;
+//        previewImage.colums = 7;
+//        previewImages.add(previewImage);
+//        videoInfo.previewImagesList = previewImages;
+//        videoInfos.add(videoInfo);
+
+//        VideoInfo videoInfo1 = new VideoInfo();
+//        videoInfo1.movieId = "2";
+//        videoInfo1.movieTitle = "TCL";
+//        videoInfo1.movieUrl = getResources().getString(R.string.url_hls1);
+//        videoInfo1.moviePreviewUrl = getResources().getString(R.string.url_hls1);
+//        videoInfo1.imageCount = 42;
+//        List<PreviewImage> previewImages1 = new ArrayList<>();
+//        PreviewImage previewImage1 = new PreviewImage();
+//        previewImage1.imagePreviewUrl = "https://bitdash-a.akamaihd.net/content/MI201109210084_1/thumbnails/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.jpg";
+//        previewImage1.imageSize = 42;
+//        previewImage1.lines = 7;
+//        previewImage1.colums = 7;
+//        previewImages1.add(previewImage1);
+//        videoInfo1.previewImagesList = previewImages1;
+//        videoInfos.add(videoInfo1);
 
         VideoInfo videoInfo2 = new VideoInfo();
         videoInfo2.movieId = "2";
@@ -116,8 +117,8 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
         videoInfo2.previewImagesList = previewImages2;
         videoInfos.add(videoInfo2);
 
-//        exoPlayerManager.addVideoDatas(videoInfos);
-        exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos);
+        exoPlayerManager.addVideoDatas(videoInfos);
+//        exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos);
 
     }
 

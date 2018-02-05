@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import cn.tqp.exoplayer.R;
+import cn.tqp.exoplayer.manager.ExoPlayerSoundManager;
 
 /**
  * Created by tangqipeng on 2018/1/29.

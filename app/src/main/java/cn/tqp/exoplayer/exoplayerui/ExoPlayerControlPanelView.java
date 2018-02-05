@@ -17,6 +17,9 @@ import android.view.View;
 import android.view.WindowManager;
 
 import cn.tqp.exoplayer.R;
+import cn.tqp.exoplayer.manager.ExoPlayerLightingManager;
+import cn.tqp.exoplayer.manager.ExoPlayerSoundManager;
+import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 
 
 /**

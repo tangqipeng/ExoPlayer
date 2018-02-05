@@ -51,6 +51,7 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 
 import cn.tqp.exoplayer.R;
+import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 
 /**
  * Created by tangqipeng on 2018/1/25.

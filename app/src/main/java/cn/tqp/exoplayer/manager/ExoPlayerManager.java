@@ -1,4 +1,4 @@
-package cn.tqp.exoplayer.exoplayerui;
+package cn.tqp.exoplayer.manager;
 
 import android.net.Uri;
 import android.os.Handler;
@@ -37,6 +37,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.tqp.exoplayer.DemoApplication;
+import cn.tqp.exoplayer.exoplayerui.EventLogger;
+import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
+import cn.tqp.exoplayer.exoplayerui.VideoInfo;
 
 /**
  * Created by tangqipeng on 2018/1/25.
