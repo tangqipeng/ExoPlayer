@@ -2,21 +2,16 @@ package cn.tqp.exoplayer.manager;
 
 import android.net.Uri;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.util.Log;
-import android.widget.FrameLayout;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
@@ -28,18 +23,16 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Util;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import cn.tqp.exoplayer.DemoApplication;
-import cn.tqp.exoplayer.exoplayerui.EventLogger;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
 import cn.tqp.exoplayer.exoplayerui.VideoInfo;
+import cn.tqp.exoplayer.listener.EventLogger;
 
 /**
  * Created by tangqipeng on 2018/1/25.

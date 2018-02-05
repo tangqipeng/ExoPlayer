@@ -55,6 +55,7 @@ import java.util.Locale;
 import cn.tqp.exoplayer.R;
 import cn.tqp.exoplayer.glide.GlideApp;
 import cn.tqp.exoplayer.glide.GlideThumbnailTransformation;
+import cn.tqp.exoplayer.listener.ExoPlayerListener;
 import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 
 /**

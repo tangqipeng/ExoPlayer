@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.tqp.exoplayer.exoplayerui;
+package cn.tqp.exoplayer.listener;
 
 import android.os.SystemClock;
 import android.util.Log;
@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
 import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 
 /**

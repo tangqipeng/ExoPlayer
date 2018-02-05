@@ -1,4 +1,4 @@
-package cn.tqp.exoplayer.exoplayerui;
+package cn.tqp.exoplayer.manager;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,8 +7,10 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.provider.Settings;
 import android.util.Log;
+
+import cn.tqp.exoplayer.exoplayerui.ExoPlayerScreenOrientation;
+import cn.tqp.exoplayer.listener.ExoPlayerListener;
 
 /**
  * 从传感器中，获得相应的值 保证在横竖屏时候，左右摆动10度左右，能解除锁屏限制

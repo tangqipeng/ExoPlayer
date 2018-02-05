@@ -51,6 +51,8 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 
 import cn.tqp.exoplayer.R;
+import cn.tqp.exoplayer.listener.ExoPlayerListener;
+import cn.tqp.exoplayer.manager.ExoPlayerGravitySensorManager;
 import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 
 /**

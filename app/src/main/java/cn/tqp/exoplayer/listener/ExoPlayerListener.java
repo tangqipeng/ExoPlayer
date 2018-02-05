@@ -1,4 +1,4 @@
-package cn.tqp.exoplayer.exoplayerui;
+package cn.tqp.exoplayer.listener;
 
 import android.graphics.PointF;
 import android.view.MotionEvent;
