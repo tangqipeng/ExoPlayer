@@ -1,6 +1,5 @@
-package cn.tqp.exoplayer;
+package cn.tqp.exoplayer.utils;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -52,7 +51,7 @@ public class AppUtil {
     public static void showActionBar(Context context) {
         ActionBar ab = getAppCompActivity(context).getSupportActionBar();
         if (ab != null) {
-            ab.setShowHideAnimationEnabled(false);
+//            ab.setShowHideAnimationEnabled(false);
             ab.show();
         }
         scanForActivity(context)
@@ -85,25 +84,6 @@ public class AppUtil {
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
-    /**
-     * 获取屏幕宽度
-     *
-     * @param context
-     * @return width of the screen.
-     */
-    public static int getScreenWidth(Context context) {
-        return context.getResources().getDisplayMetrics().widthPixels;
-    }
-
-    /**
-     * 获取屏幕高度
-     *
-     * @param context
-     * @return heiht of the screen.
-     */
-    public static int getScreenHeight(Context context) {
-        return context.getResources().getDisplayMetrics().heightPixels;
-    }
 
     /**
      * dp转px
@@ -140,30 +120,4 @@ public class AppUtil {
         }
     }
 
-    /**
-     * 保存播放位置，以便下次播放时接着上次的位置继续播放.
-     *
-     * @param context
-     * @param url     视频链接url
-     */
-    public static void savePlayPosition(Context context, String url, long position) {
-        context.getSharedPreferences("NICE_VIDEO_PALYER_PLAY_POSITION",
-                Context.MODE_PRIVATE)
-                .edit()
-                .putLong(url, position)
-                .apply();
-    }
-
-    /**
-     * 取出上次保存的播放位置
-     *
-     * @param context
-     * @param url     视频链接url
-     * @return 上次保存的播放位置
-     */
-    public static long getSavedPlayPosition(Context context, String url) {
-        return context.getSharedPreferences("NICE_VIDEO_PALYER_PLAY_POSITION",
-                Context.MODE_PRIVATE)
-                .getLong(url, 0);
-    }
 }

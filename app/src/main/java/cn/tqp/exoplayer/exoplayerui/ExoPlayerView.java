@@ -53,7 +53,9 @@ import java.util.List;
 import cn.tqp.exoplayer.R;
 import cn.tqp.exoplayer.listener.ExoPlayerListener;
 import cn.tqp.exoplayer.manager.ExoPlayerGravitySensorManager;
+import cn.tqp.exoplayer.utils.AppUtil;
 import cn.tqp.exoplayer.utils.ExoPlayerUtils;
+import cn.tqp.exoplayer.utils.ScreenUtils;
 
 /**
  * Created by tangqipeng on 2018/1/25.
@@ -1007,7 +1009,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         DisplayMetrics outMetrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics(outMetrics);
         if (width == 0) {
-            width = ExoPlayerUtils.getDpi(mContext);
+            width = ScreenUtils.getDpi(mContext);
         }
         if (height == 0) {
             height = outMetrics.heightPixels;
@@ -1027,7 +1029,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {//横屏
-            ExoPlayerUtils.hideActionBarAndBottomUiMenu(mContext);
+            AppUtil.hideActionBarAndBottomUiMenu(mContext);
 
             if (exoPlayerViewContainer != null){
                 new Handler().post(new Runnable() {
@@ -1045,7 +1047,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
             scaleLayout(0, 0);
 
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {//竖屏
-            ExoPlayerUtils.showActionBarAndBottomUiMenu(mContext);
+            AppUtil.showActionBarAndBottomUiMenu(mContext);
             if (exoPlayerViewContainer != null){
                 new Handler().post(new Runnable() {
                     @Override
@@ -1056,7 +1058,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
             }
 
 
-            scaleLayout(ExoPlayerUtils.getScreenWidth(mContext), ExoPlayerUtils.getScreenWidth(mContext) * 9 / 16);
+            scaleLayout(ScreenUtils.getScreenWidth(mContext), ScreenUtils.getScreenWidth(mContext) * 9 / 16);
 
         }
 

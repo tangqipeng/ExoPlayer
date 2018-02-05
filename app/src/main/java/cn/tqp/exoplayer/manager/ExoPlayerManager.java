@@ -169,6 +169,8 @@ public class ExoPlayerManager {
         player.setPlayWhenReady(true);
         ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);
         player.prepare(concatenatedSource);
+        player.addVideoDebugListener(mEventLogger);
+        player.addMetadataOutput(mEventLogger);
         player.addListener(mEventLogger);
         return player;
     }

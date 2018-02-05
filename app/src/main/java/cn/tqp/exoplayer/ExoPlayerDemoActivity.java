@@ -15,6 +15,7 @@ import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
 import cn.tqp.exoplayer.exoplayerui.PreviewImage;
 import cn.tqp.exoplayer.exoplayerui.VideoInfo;
+import cn.tqp.exoplayer.utils.ScreenUtils;
 
 /**
  * Created by tangqipeng on 2018/1/25.
@@ -52,7 +53,7 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
 //        });
 
         //竖屏加入这个
-        int playerWidth = ExoPlayerUtils.getScreenWidth(this);
+        int playerWidth = ScreenUtils.getScreenWidth(this);
         int playerHeight = playerWidth * 9 / 16;
         ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.MATCH_PARENT, playerHeight);
         exoPlayerView.setLayoutParams(layoutParams);

@@ -21,6 +21,7 @@ import cn.tqp.exoplayer.listener.ExoPlayerListener;
 import cn.tqp.exoplayer.manager.ExoPlayerLightingManager;
 import cn.tqp.exoplayer.manager.ExoPlayerSoundManager;
 import cn.tqp.exoplayer.utils.ExoPlayerUtils;
+import cn.tqp.exoplayer.utils.ScreenUtils;
 
 
 /**
@@ -348,7 +349,7 @@ public class ExoPlayerControlPanelView extends View {
     }
 
     private boolean getIsRight(final PointF point) {
-        int width = ExoPlayerUtils.getScreenWidth(mContext);
+        int width = ScreenUtils.getScreenWidth(mContext);
         boolean isRight = false;
         if (point.x > ((float) width / 2)) {
             // 在右边屏幕位置
@@ -368,7 +369,7 @@ public class ExoPlayerControlPanelView extends View {
     private float getCurrSoundFromEvent(final PointF point1, final PointF point2, float distansY) {
         int maxVolume = ExoPlayerSoundManager.getMaxSoundVolume(mContext);
         int currVolume = ExoPlayerSoundManager.getCurrSoundVolume(mContext);
-        float degree = (float) distansY / ExoPlayerUtils.getScreenHeight(mContext);
+        float degree = (float) distansY / ScreenUtils.getScreenHeight(mContext);
         mTmpStreamLevel += (degree * maxVolume);
         if (mTmpStreamLevel < 0) {
             mTmpStreamLevel = 0;
@@ -390,7 +391,7 @@ public class ExoPlayerControlPanelView extends View {
         float ret = 1.0f;
         float y1 = point1.y;
         float y2 = point2.y;
-        int height = ExoPlayerUtils.getScreenHeight(mContext);
+        int height = ScreenUtils.getScreenHeight(mContext);
         float distance = y1 - y2;
 
         float degree = distance / height;
@@ -468,7 +469,7 @@ public class ExoPlayerControlPanelView extends View {
      * @return
      */
     public float getCurrTimeFromEvent(final PointF point1, final PointF point2, long current, long duration) {
-        int width = ExoPlayerUtils.getScreenWidth(mContext);
+        int width = ScreenUtils.getScreenWidth(mContext);
         int distance = (int) (point2.x - point1.x);
         float rate = mProgressRate;
         float ret = ((float) current / duration) + ((float) distance / (float) width) * rate;

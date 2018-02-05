@@ -57,6 +57,7 @@ import cn.tqp.exoplayer.glide.GlideApp;
 import cn.tqp.exoplayer.glide.GlideThumbnailTransformation;
 import cn.tqp.exoplayer.listener.ExoPlayerListener;
 import cn.tqp.exoplayer.utils.ExoPlayerUtils;
+import cn.tqp.exoplayer.utils.ScreenUtils;
 
 /**
  * Created by tangqipeng on 2018/1/25.
@@ -152,6 +153,8 @@ public class ExoPlayerControlView extends FrameLayout {
     private final Formatter formatter;
     private final Timeline.Period period;
     private final Timeline.Window window;
+
+    private View netView;
 
     private final Drawable repeatOffButtonDrawable;
     private final Drawable repeatOneButtonDrawable;
@@ -340,7 +343,7 @@ public class ExoPlayerControlView extends FrameLayout {
         if (showPreviewButton) {
             previewLayout = new FrameLayout(context);
             previewLayout.setBackgroundResource(R.drawable.translucence_round_bg);
-            int screenWidth = ExoPlayerUtils.getScreenWidth(context);
+            int screenWidth = ScreenUtils.getScreenWidth(context);
             int previewWidth = screenWidth / 3;
             int previewHeight = previewWidth * 9 / 16;
             if (screenWidth <= 1080) {
@@ -362,6 +365,18 @@ public class ExoPlayerControlView extends FrameLayout {
         repeatAllButtonContentDescription = resources.getString(com.google.android.exoplayer2.ui.R.string.exo_controls_repeat_all_description);
 
         setSomeButtonVisible();
+
+        //网络异常页
+        netView = LayoutInflater.from(context).inflate(R.layout.net_error_layout, null);
+        LayoutParams netLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        addView(netView, netLayoutParams);
+        netView.setVisibility(GONE);
+        netView.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
 
     }
 

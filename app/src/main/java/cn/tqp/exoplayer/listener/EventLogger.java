@@ -120,62 +120,62 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
      */
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int state) {
-        Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", " + getStateString(state) + "]");
+        Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", " + ExoPlayerUtils.getStateString(state) + "]");
 
         currentTimeMs = SystemClock.elapsedRealtime();
 
-        if (playWhenReady && getStateString(state).equals("R")) {//准备完成正在播放
+        if (playWhenReady && ExoPlayerUtils.getStateString(state).equals("R")) {//准备完成正在播放
             if (isPrepare) {
                 isPrepare = false;
                 isPause = false;
-                Log.e(TAG, "state [" + getStateString(state) + "] after prepare bufferTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
+                Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] after prepare bufferTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
             } else {
                 if (isSeek) {
                     if (isBuffer) {
                         isSeek = false;
                         isBuffer = false;
                         isPause = false;
-                        Log.e(TAG, "state [" + getStateString(state) + "] after seek bufferTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
+                        Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] after seek bufferTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
                     } else {//拖动用时
-                        Log.e(TAG, "state [" + getStateString(state) + "] seekTimeMs [" + (currentTimeMs - lastTimeMs) + "] seekEndPosition [" + mExoPlayerView.getPlayer().getCurrentPosition() + "]");
+                        Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] seekTimeMs [" + (currentTimeMs - lastTimeMs) + "] seekEndPosition [" + mExoPlayerView.getPlayer().getCurrentPosition() + "]");
                     }
                 }else{
                     if (isPause){
                         isPause = false;
                         isNetError = false;
-                        Log.e(TAG, "state [" + getStateString(state) + "] pauseTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
+                        Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] pauseTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
                     }
                 }
             }
             lastTimeMs = currentTimeMs;
-        } else if (!playWhenReady && getStateString(state).equals("R")) {//准备完成正暂停中
+        } else if (!playWhenReady && ExoPlayerUtils.getStateString(state).equals("R")) {//准备完成正暂停中
             isPause = true;
             pausePosition = mExoPlayerView.getPlayer().getCurrentPosition();
             if (isNetError){//网络异常导致暂停
-                Log.e(TAG, "state [" + getStateString(state) + "] NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
+                Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
             }else{//主动暂停
-                Log.e(TAG, "state [" + getStateString(state) + "] playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
+                Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
             }
             playCountTime = playCountTime + (currentTimeMs - lastTimeMs);
             lastTimeMs = currentTimeMs;
-        } else if (playWhenReady && getStateString(state).equals("B")) {//准备完成正缓冲中
+        } else if (playWhenReady && ExoPlayerUtils.getStateString(state).equals("B")) {//准备完成正缓冲中
             if (isPrepare) {
-                Log.e(TAG, "state [" + getStateString(state) + "] prepareTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
+                Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] prepareTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
                 lastTimeMs = currentTimeMs;
             } else {
                 if (isSeek) {
                     isBuffer = true;
                 }
             }
-        } else if (playWhenReady && getStateString(state).equals("I")){
+        } else if (playWhenReady && ExoPlayerUtils.getStateString(state).equals("I")){
             if (isNetError){
-                Log.e(TAG, "state [" + getStateString(state) + "] NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
+                Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
                 lastTimeMs = currentTimeMs;
                 mExoPlayerView.getPlayer().setPlayWhenReady(false);
             }
-        } else if (playWhenReady && getStateString(state).equals("E")){//播放完成当前播放器中所有的地址
+        } else if (playWhenReady && ExoPlayerUtils.getStateString(state).equals("E")){//播放完成当前播放器中所有的地址
             pausePosition = mExoPlayerView.getPlayer().getCurrentPosition();
-            Log.e(TAG, "state [" + getStateString(state) + "] Completed playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] endPositon [" + mExoPlayerView.getPlayer().getCurrentPosition() + "]");
+            Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] Completed playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] endPositon [" + mExoPlayerView.getPlayer().getCurrentPosition() + "]");
             playCountTime = playCountTime + (currentTimeMs - lastTimeMs);
             Log.w(TAG, "playCountTime:"+playCountTime);
             lastTimeMs = currentTimeMs;
@@ -551,21 +551,6 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     private static String getTimeString(long timeMs) {
         return timeMs == C.TIME_UNSET ? "?" : TIME_FORMAT.format((timeMs) / 1000f);
-    }
-
-    private static String getStateString(int state) {
-        switch (state) {
-            case Player.STATE_BUFFERING:
-                return "B";
-            case Player.STATE_ENDED:
-                return "E";
-            case Player.STATE_IDLE:
-                return "I";
-            case Player.STATE_READY:
-                return "R";
-            default:
-                return "?";
-        }
     }
 
     private static String getFormatSupportString(int formatSupport) {
