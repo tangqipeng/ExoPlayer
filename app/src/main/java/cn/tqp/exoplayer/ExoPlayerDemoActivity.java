@@ -62,7 +62,7 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
         //这句绝对不能少（再有大小屏切换的时候，不需要大小屏切换可以不设置）最好是每次都设置
         exoPlayerView.setExoPlayerViewContainer((ViewGroup) exoPlayerView.getParent());
 
-        exoPlayerManager = new ExoPlayerManager(exoPlayerView);
+        exoPlayerManager = new ExoPlayerManager(this, exoPlayerView);
 
         /**
          * 这里说明 如果采用的预览窗口的资源是个播放地址，那么 videoInfo.moviePreviewUrl 就是播放地址，注入数据的方法是exoPlayerManager.addVideoDatas(videoInfos)；

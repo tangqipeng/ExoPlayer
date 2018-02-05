@@ -1,5 +1,6 @@
 package cn.tqp.exoplayer.manager;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 
@@ -24,6 +25,9 @@ import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
 import java.util.ArrayList;
@@ -41,6 +45,7 @@ import cn.tqp.exoplayer.listener.EventLogger;
 public class ExoPlayerManager {
 
     private static final String TAG = "ExoPlayerManager";
+    private Context mContext;
     private ExoPlayerView playerView;
     private SimpleExoPlayer exoPlayer;
     private List<VideoInfo> mVideoInfoList;
@@ -53,7 +58,8 @@ public class ExoPlayerManager {
     private DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
     private Handler mainHandler = new Handler();
 
-    public ExoPlayerManager(ExoPlayerView playerView) {
+    public ExoPlayerManager(Context context, ExoPlayerView playerView) {
+        this.mContext = context;
         this.playerView = playerView;
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
@@ -176,17 +182,6 @@ public class ExoPlayerManager {
     }
 
     /**
-     * Returns a new DataSource factory.
-     *
-     * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
-     *                          DataSource factory.
-     * @return A new DataSource factory.
-     */
-    public DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
-        return DemoApplication.getInstance().buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
-    }
-
-    /**
      * Returns a new MediaSouce in player
      * @param uri
      * @return
@@ -226,6 +221,25 @@ public class ExoPlayerManager {
                 throw new IllegalStateException("Unsupported type: " + type);
             }
         }
+    }
+
+    /**
+     * Returns a new DataSource factory.
+     *
+     * @param useBandwidthMeter Whether to set {@link #BANDWIDTH_METER} as a listener to the new
+     *                          DataSource factory.
+     * @return A new DataSource factory.
+     */
+    public DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
+        return buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
+    }
+
+    public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+        return new DefaultDataSourceFactory(mContext, bandwidthMeter, buildHttpDataSourceFactory(bandwidthMeter));
+    }
+
+    public HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+        return new DefaultHttpDataSourceFactory(Util.getUserAgent(mContext, "ExoPlayer"), bandwidthMeter);
     }
 
 }

@@ -29,8 +29,6 @@ import com.google.android.exoplayer2.util.Util;
  */
 public class DemoApplication extends Application {
 
-  protected String userAgent;
-
   private static DemoApplication application;
 
   public static DemoApplication getInstance(){
@@ -41,15 +39,6 @@ public class DemoApplication extends Application {
   public void onCreate() {
     super.onCreate();
     application = this;
-    userAgent = Util.getUserAgent(this, "ExoPlayer");
-  }
-
-  public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
-    return new DefaultDataSourceFactory(this, bandwidthMeter, buildHttpDataSourceFactory(bandwidthMeter));
-  }
-
-  public HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
-    return new DefaultHttpDataSourceFactory(userAgent, bandwidthMeter);
   }
 
   public boolean useExtensionRenderers() {

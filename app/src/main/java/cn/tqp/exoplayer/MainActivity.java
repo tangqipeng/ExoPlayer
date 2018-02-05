@@ -50,6 +50,9 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.ui.TimeBar;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
 import java.lang.reflect.Method;
@@ -258,7 +261,15 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
      * @return A new DataSource factory.
      */
     private DataSource.Factory buildDataSourceFactory(boolean useBandwidthMeter) {
-        return ((DemoApplication) getApplication()).buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
+        return buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
+    }
+
+    public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+        return new DefaultDataSourceFactory(this, bandwidthMeter, buildHttpDataSourceFactory(bandwidthMeter));
+    }
+
+    public HttpDataSource.Factory buildHttpDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {
+        return new DefaultHttpDataSourceFactory(Util.getUserAgent(this, "ExoPlayer"), bandwidthMeter);
     }
 
     private MediaSource buildMediaSource(Uri uri, String overrideExtension, boolean useBandwidthMeter, @Nullable Handler handler, @Nullable MediaSourceEventListener listener) {
