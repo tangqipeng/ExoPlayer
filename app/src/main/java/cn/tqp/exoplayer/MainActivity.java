@@ -57,7 +57,7 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.lang.reflect.Method;
 
-import cn.tqp.exoplayer.exoplayerui.ExoPlayerScreenOrientation;
+import cn.tqp.exoplayer.manager.ExoPlayerScreenOrientation;
 import cn.tqp.exoplayer.utils.AppUtil;
 
 

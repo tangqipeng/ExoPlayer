@@ -11,10 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.tqp.exoplayer.manager.ExoPlayerManager;
-import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
-import cn.tqp.exoplayer.exoplayerui.PreviewImage;
-import cn.tqp.exoplayer.exoplayerui.VideoInfo;
+import cn.tqp.exoplayer.entity.PreviewImage;
+import cn.tqp.exoplayer.entity.VideoInfo;
 import cn.tqp.exoplayer.utils.ScreenUtils;
 
 /**
@@ -118,8 +117,8 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
         videoInfo2.previewImagesList = previewImages2;
         videoInfos.add(videoInfo2);
 
-        exoPlayerManager.addVideoDatas(videoInfos);
-//        exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos);
+//        exoPlayerManager.addVideoDatas(videoInfos);
+        exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos);
 
     }
 

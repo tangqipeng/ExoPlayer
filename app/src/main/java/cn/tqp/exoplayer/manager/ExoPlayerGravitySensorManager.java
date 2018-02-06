@@ -9,7 +9,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
-import cn.tqp.exoplayer.exoplayerui.ExoPlayerScreenOrientation;
 import cn.tqp.exoplayer.listener.ExoPlayerListener;
 
 /**

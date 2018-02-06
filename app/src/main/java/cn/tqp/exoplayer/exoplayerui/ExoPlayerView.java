@@ -51,10 +51,11 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.List;
 
 import cn.tqp.exoplayer.R;
+import cn.tqp.exoplayer.entity.VideoInfo;
 import cn.tqp.exoplayer.listener.ExoPlayerListener;
 import cn.tqp.exoplayer.manager.ExoPlayerGravitySensorManager;
+import cn.tqp.exoplayer.manager.ExoPlayerScreenOrientation;
 import cn.tqp.exoplayer.utils.AppUtil;
-import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 import cn.tqp.exoplayer.utils.ScreenUtils;
 
 /**
@@ -455,14 +456,22 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     }
 
     /**
+     * Set the display and hide of the netView.
+     * @param isShow
+     */
+    public void notifyNetViewIsVisible(boolean isShow){
+        if (this.controller != null)
+            this.controller.notifyNetViewVisible(isShow);
+    }
+
+    /**
      * Switches the view targeted by a given {@link SimpleExoPlayer}.
      *
      * @param player The player whose target view is being switched.
      * @param oldPlayerView The old view to detach from the player.
      * @param newPlayerView The new view to attach to the player.
      */
-    public static void switchTargetView(@NonNull SimpleExoPlayer player,
-                                        @Nullable SimpleExoPlayerView oldPlayerView, @Nullable SimpleExoPlayerView newPlayerView) {
+    public static void switchTargetView(@NonNull SimpleExoPlayer player, @Nullable SimpleExoPlayerView oldPlayerView, @Nullable SimpleExoPlayerView newPlayerView) {
         if (oldPlayerView == newPlayerView) {
             return;
         }
@@ -621,6 +630,10 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
             controller.hide();
             controller.setPlayer(null);
         }
+    }
+
+    public void hideLoadingView(){
+        mLoadingView.hideLoading();
     }
 
     /**

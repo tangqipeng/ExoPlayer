@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,9 +54,12 @@ import java.util.List;
 import java.util.Locale;
 
 import cn.tqp.exoplayer.R;
+import cn.tqp.exoplayer.entity.PreviewImage;
+import cn.tqp.exoplayer.entity.VideoInfo;
 import cn.tqp.exoplayer.glide.GlideApp;
 import cn.tqp.exoplayer.glide.GlideThumbnailTransformation;
 import cn.tqp.exoplayer.listener.ExoPlayerListener;
+import cn.tqp.exoplayer.manager.ExoPlayerScreenOrientation;
 import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 import cn.tqp.exoplayer.utils.ScreenUtils;
 
@@ -155,6 +159,7 @@ public class ExoPlayerControlView extends FrameLayout {
     private final Timeline.Window window;
 
     private View netView;
+    private Button btnReplay;
 
     private final Drawable repeatOffButtonDrawable;
     private final Drawable repeatOneButtonDrawable;
@@ -368,6 +373,7 @@ public class ExoPlayerControlView extends FrameLayout {
 
         //网络异常页
         netView = LayoutInflater.from(context).inflate(R.layout.net_error_layout, null);
+        btnReplay = (Button) netView.findViewById(R.id.btn_replay);
         LayoutParams netLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         addView(netView, netLayoutParams);
         netView.setVisibility(GONE);
@@ -377,6 +383,7 @@ public class ExoPlayerControlView extends FrameLayout {
 
             }
         });
+        btnReplay.setOnClickListener(componentListener);
 
     }
 
@@ -495,6 +502,18 @@ public class ExoPlayerControlView extends FrameLayout {
     public void setMovieTitle(String title) {
         if (txtTitle != null) {
             txtTitle.setText(title);
+        }
+    }
+
+    /**
+     * Set the display and hide of the netView.
+     * @param isShow
+     */
+    public void notifyNetViewVisible(boolean isShow){
+        if (isShow){
+            netView.setVisibility(VISIBLE);
+        }else{
+            netView.setVisibility(GONE);
         }
     }
 
@@ -1444,6 +1463,10 @@ public class ExoPlayerControlView extends FrameLayout {
                             topContainer.setVisibility(GONE);
                         }
                     }
+                }else if (btnReplay == view){
+                    player.setPlayWhenReady(true);
+                    notifyNetViewVisible(false);
+                    ExoPlayerControl.mobileNetPlay = true;
                 }
             }
             hideAfterTimeout();

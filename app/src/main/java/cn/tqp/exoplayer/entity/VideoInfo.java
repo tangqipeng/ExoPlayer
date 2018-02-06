@@ -1,6 +1,8 @@
-package cn.tqp.exoplayer.exoplayerui;
+package cn.tqp.exoplayer.entity;
 
 import java.util.List;
+
+import cn.tqp.exoplayer.entity.PreviewImage;
 
 /**
  * Created by tangqipeng on 2018/1/25.

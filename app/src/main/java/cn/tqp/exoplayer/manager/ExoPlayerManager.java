@@ -33,9 +33,9 @@ import com.google.android.exoplayer2.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.tqp.exoplayer.DemoApplication;
+import cn.tqp.exoplayer.exoplayerui.ExoPlayerLoadControl;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
-import cn.tqp.exoplayer.exoplayerui.VideoInfo;
+import cn.tqp.exoplayer.entity.VideoInfo;
 import cn.tqp.exoplayer.listener.EventLogger;
 
 /**
@@ -54,7 +54,7 @@ public class ExoPlayerManager {
     private MediaSource[] previewMediaSources;
     private TrackSelector trackSelector;
     private EventLogger mEventLogger;
-    private LoadControl mLoadControl;
+    private ExoPlayerLoadControl mLoadControl;
     private DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
     private Handler mainHandler = new Handler();
 
@@ -63,8 +63,8 @@ public class ExoPlayerManager {
         this.playerView = playerView;
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
+        mLoadControl = new ExoPlayerLoadControl();
         mEventLogger = new EventLogger((MappingTrackSelector)trackSelector, playerView);
-        mLoadControl = new DefaultLoadControl();
     }
 
     /**
@@ -172,9 +172,9 @@ public class ExoPlayerManager {
 
     private SimpleExoPlayer createFullPlayer() {
         SimpleExoPlayer player = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(playerView.getContext()), trackSelector, mLoadControl);
-        player.setPlayWhenReady(true);
         ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);
         player.prepare(concatenatedSource);
+        player.setPlayWhenReady(true);
         player.addVideoDebugListener(mEventLogger);
         player.addMetadataOutput(mEventLogger);
         player.addListener(mEventLogger);
