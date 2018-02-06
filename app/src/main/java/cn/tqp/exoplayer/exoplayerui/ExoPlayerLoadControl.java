@@ -1,5 +1,6 @@
 package cn.tqp.exoplayer.exoplayerui;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.android.exoplayer2.C;
@@ -12,12 +13,15 @@ import com.google.android.exoplayer2.upstream.DefaultAllocator;
 import com.google.android.exoplayer2.util.PriorityTaskManager;
 import com.google.android.exoplayer2.util.Util;
 
+import cn.tqp.exoplayer.utils.NetworkUtils;
+
 /**
  * Created by tangqipeng on 2018/2/5.
  */
 
 public class ExoPlayerLoadControl implements LoadControl {
 
+    private Context mContext;
     public static final int DEFAULT_MIN_BUFFER_MS = 15000;
     public static final int DEFAULT_MAX_BUFFER_MS = 30000;
     public static final int DEFAULT_BUFFER_FOR_PLAYBACK_MS = 2500;
@@ -37,9 +41,11 @@ public class ExoPlayerLoadControl implements LoadControl {
 
     private int targetBufferSize;
     private boolean isBuffering;
+    public static boolean needBuffering = true;//控制需要继续缓存的开关
 
-    public ExoPlayerLoadControl() {
+    public ExoPlayerLoadControl(Context context) {
         this(new DefaultAllocator(true,C.DEFAULT_BUFFER_SEGMENT_SIZE));
+        this.mContext = context;
     }
 
     public ExoPlayerLoadControl(DefaultAllocator allocator) {
@@ -112,8 +118,16 @@ public class ExoPlayerLoadControl implements LoadControl {
                 priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
             }
         }
-        Log.d("shouldContinueLoading", "isBuffering : " + isBuffering + "; needBuffering : " + ExoPlayerControl.needBuffering);
-        return isBuffering && ExoPlayerControl.needBuffering;
+        if (!NetworkUtils.isNetworkAvalidate(mContext)) {
+            needBuffering = false;
+        }else if (NetworkUtils.isOnlyMobileType(mContext) && !ExoPlayerControl.mobileNetPlay){
+            needBuffering = false;
+        }else if (NetworkUtils.isNetworkConnectedByWifi(mContext) || (NetworkUtils.isOnlyMobileType(mContext) && ExoPlayerControl.mobileNetPlay)){
+            needBuffering = true;
+        }
+
+        Log.d("shouldContinueLoading", "isBuffering : " + isBuffering + "; needBuffering : " + needBuffering);
+        return isBuffering && needBuffering;
     }
 
     private int getBufferTimeState(long bufferedDurationUs) {

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/translucence"
+    android:background="@color/color1c1c1c"
     android:orientation="vertical">
 
 
@@ -22,19 +22,25 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/txt_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/colorWhite"
-            android:text="TextView"
-            android:textSize="@dimen/text_18" />
+            android:text="@string/no_net_tip"
+            android:textSize="@dimen/text_15" />
 
-        <Button
+        <TextView
             android:id="@+id/btn_replay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/base_dimen_50"
-            android:text="Button" />
+            android:textColor="@color/colorWhite"
+            android:paddingTop="@dimen/base_dimen_15"
+            android:paddingBottom="@dimen/base_dimen_15"
+            android:paddingLeft="@dimen/base_dimen_30"
+            android:paddingRight="@dimen/base_dimen_30"
+            android:background="@drawable/button_circular_selector"
+            android:text="@string/mobile_button_to_play" />
 
     </LinearLayout>
 </LinearLayout>

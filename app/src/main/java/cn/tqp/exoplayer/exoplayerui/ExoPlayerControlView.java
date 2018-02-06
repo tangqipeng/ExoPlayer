@@ -22,7 +22,6 @@ import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -61,7 +60,9 @@ import cn.tqp.exoplayer.glide.GlideThumbnailTransformation;
 import cn.tqp.exoplayer.listener.ExoPlayerListener;
 import cn.tqp.exoplayer.manager.ExoPlayerScreenOrientation;
 import cn.tqp.exoplayer.utils.ExoPlayerUtils;
+import cn.tqp.exoplayer.utils.NetworkUtils;
 import cn.tqp.exoplayer.utils.ScreenUtils;
+import cn.tqp.exoplayer.utils.ToastUtils;
 
 /**
  * Created by tangqipeng on 2018/1/25.
@@ -159,7 +160,8 @@ public class ExoPlayerControlView extends FrameLayout {
     private final Timeline.Window window;
 
     private View netView;
-    private Button btnReplay;
+    private TextView txtTip;
+    private TextView btnReplay;
 
     private final Drawable repeatOffButtonDrawable;
     private final Drawable repeatOneButtonDrawable;
@@ -373,7 +375,13 @@ public class ExoPlayerControlView extends FrameLayout {
 
         //网络异常页
         netView = LayoutInflater.from(context).inflate(R.layout.net_error_layout, null);
-        btnReplay = (Button) netView.findViewById(R.id.btn_replay);
+        txtTip = (TextView) netView.findViewById(R.id.txt_tip);
+        btnReplay = (TextView) netView.findViewById(R.id.btn_replay);
+        if (NetworkUtils.isOnlyMobileType(context)) {
+            txtTip.setText(R.string.mobile_net_tip);
+        } else if (!NetworkUtils.isNetworkAvalidate(context)){
+            txtTip.setText(R.string.no_net_tip);
+        }
         LayoutParams netLayoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         addView(netView, netLayoutParams);
         netView.setVisibility(GONE);
@@ -508,10 +516,16 @@ public class ExoPlayerControlView extends FrameLayout {
     /**
      * Set the display and hide of the netView.
      * @param isShow
+     * @param tag 标记
      */
-    public void notifyNetViewVisible(boolean isShow){
+    public void notifyNetViewVisible(boolean isShow, int tag){
         if (isShow){
             netView.setVisibility(VISIBLE);
+            if (tag == ExoPlayerControl.MOBILE_NETWORK) {
+                txtTip.setText(R.string.mobile_net_tip);
+            } else if (tag == ExoPlayerControl.WIFI_NETWORK){
+                txtTip.setText(R.string.no_net_tip);
+            }
         }else{
             netView.setVisibility(GONE);
         }
@@ -1464,9 +1478,13 @@ public class ExoPlayerControlView extends FrameLayout {
                         }
                     }
                 }else if (btnReplay == view){
-                    player.setPlayWhenReady(true);
-                    notifyNetViewVisible(false);
-                    ExoPlayerControl.mobileNetPlay = true;
+                    if (NetworkUtils.isNetworkAvalidate(mContext)) {
+                        player.setPlayWhenReady(true);
+                        notifyNetViewVisible(false, ExoPlayerControl.MOBILE_NETWORK);
+                        ExoPlayerControl.mobileNetPlay = true;
+                    }else{
+                        ToastUtils.showToast(mContext, R.string.no_net_tip);
+                    }
                 }
             }
             hideAfterTimeout();

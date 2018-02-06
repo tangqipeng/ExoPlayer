@@ -63,7 +63,7 @@ public class ExoPlayerManager {
         this.playerView = playerView;
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
-        mLoadControl = new ExoPlayerLoadControl();
+        mLoadControl = new ExoPlayerLoadControl(context);
         mEventLogger = new EventLogger((MappingTrackSelector)trackSelector, playerView);
     }
 

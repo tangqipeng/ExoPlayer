@@ -459,9 +459,9 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
      * Set the display and hide of the netView.
      * @param isShow
      */
-    public void notifyNetViewIsVisible(boolean isShow){
+    public void notifyNetViewIsVisible(boolean isShow, int tag){
         if (this.controller != null)
-            this.controller.notifyNetViewVisible(isShow);
+            this.controller.notifyNetViewVisible(isShow, tag);
     }
 
     /**

@@ -42,4 +42,14 @@
     <string name="ima_not_loaded">Playing sample without ads, as the IMA extension was not loaded</string>
 
     <string name="url_hls1">http://cdn.ali.vcinema.com.cn/201708/EEkxpsYS/GdfmjnvvAw.m3u8</string>
+
+    <string name="mobile_net_tip">检车到您正在使用运营商网络，是否继续播放？</string>
+
+    <string name="mobile_button_to_play">继续播放</string>
+
+    <string name="no_net_tip">网络异常，请检查网络连接</string>
+
+    <string name="no_net_button_to_play">刷新重试</string>
+
+
 </resources>

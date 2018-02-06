@@ -91,7 +91,6 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     private boolean isSeek = false;//是否seek
     private boolean isBuffer = false;//是否在预加载
     private boolean isPause = false;//是否暂停
-    private boolean isNetError = false;//是否网络异常
     private long pausePosition = 0;
     private long playCountTime = 0;
 
@@ -114,12 +113,11 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     @Override
     public void onLoadingChanged(boolean isLoading) {
         Log.d(TAG, "loading [" + isLoading + "]");
-        if (NetworkUtils.isOnlyMobileType(mExoPlayerView.getContext()) && !ExoPlayerControl.mobileNetPlay && ExoPlayerControl.isPrepared){
-            isNetError = true;
+        if (NetworkUtils.isOnlyMobileType(mExoPlayerView.getContext()) && !ExoPlayerControl.mobileNetPlay){
+            ExoPlayerControl.isNetError = true;
             mExoPlayerView.hideLoadingView();
             mExoPlayerView.getPlayer().setPlayWhenReady(false);
-            ExoPlayerControl.needBuffering = false;
-            mExoPlayerView.notifyNetViewIsVisible(true);
+            mExoPlayerView.notifyNetViewIsVisible(true, ExoPlayerControl.MOBILE_NETWORK);
         }
     }
 
@@ -153,8 +151,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
                 }else{
                     if (isPause){
                         isPause = false;
-                        isNetError = false;
-                        ExoPlayerControl.needBuffering = true;
+                        ExoPlayerControl.isNetError = false;
                         Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] pauseTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
                     }
                 }
@@ -163,7 +160,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
         } else if (!playWhenReady && ExoPlayerUtils.getStateString(state).equals("R")) {//准备完成正暂停中
             isPause = true;
             pausePosition = mExoPlayerView.getPlayer().getCurrentPosition();
-            if (isNetError){//网络异常导致暂停
+            if (ExoPlayerControl.isNetError){//网络异常导致暂停
                 Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
             }else{//主动暂停
                 Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] playedTimeMs [" + (currentTimeMs - lastTimeMs) + "] pausePositon [" + pausePosition + "]");
@@ -180,7 +177,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
                 }
             }
         } else if (playWhenReady && ExoPlayerUtils.getStateString(state).equals("I")){
-            if (isNetError){
+            if (ExoPlayerControl.isNetError){
                 Log.e(TAG, "state [" + ExoPlayerUtils.getStateString(state) + "] NetError playedTimeMs [" + (currentTimeMs - lastTimeMs) + "]");
                 lastTimeMs = currentTimeMs;
                 mExoPlayerView.getPlayer().setPlayWhenReady(false);
@@ -403,7 +400,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs, long initializationDurationMs) {
-        ExoPlayerControl.isPrepared = true;
+//        ExoPlayerControl.isPrepared = true;
         Log.d(TAG, "videoDecoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
     }
 
@@ -458,7 +455,6 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
-        isNetError = false;
         Log.d(TAG, "onLoadStarted dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" +
                 trackSelectionReason + "] trackSelectionData [" + trackSelectionData + "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "]");
     }
@@ -466,10 +462,16 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     @Override
     public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
         if (NetworkUtils.isOnlyMobileType(mExoPlayerView.getContext()) || !NetworkUtils.isNetworkAvalidate(mExoPlayerView.getContext())) {
-            isNetError = true;
+            ExoPlayerControl.isNetError = true;
             mExoPlayerView.getPlayer().setPlayWhenReady(false);
-            ExoPlayerControl.needBuffering = false;
-            mExoPlayerView.notifyNetViewIsVisible(true);
+
+            if (NetworkUtils.isOnlyMobileType(mExoPlayerView.getContext())){
+                mExoPlayerView.notifyNetViewIsVisible(true, ExoPlayerControl.MOBILE_NETWORK);
+            }
+
+            if (!NetworkUtils.isNetworkAvalidate(mExoPlayerView.getContext())){
+                mExoPlayerView.notifyNetViewIsVisible(true, ExoPlayerControl.NO_NETWORK);
+            }
         }
         printInternalError("loadError", error);
         Log.d(TAG, "onLoadError dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
@@ -484,11 +486,10 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-        if (isNetError && NetworkUtils.isNetworkConnectedByWifi(mExoPlayerView.getContext())) {
-            isNetError = false;
+        if (ExoPlayerControl.isNetError && NetworkUtils.isNetworkConnectedByWifi(mExoPlayerView.getContext())) {
+            ExoPlayerControl.isNetError = false;
             mExoPlayerView.getPlayer().setPlayWhenReady(true);
-//            mLoadControl.needBuffering = true;
-            mExoPlayerView.notifyNetViewIsVisible(false);
+            mExoPlayerView.notifyNetViewIsVisible(false, ExoPlayerControl.WIFI_NETWORK);
         }
         Log.d(TAG, "onLoadCompleted dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
                 "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "]");
