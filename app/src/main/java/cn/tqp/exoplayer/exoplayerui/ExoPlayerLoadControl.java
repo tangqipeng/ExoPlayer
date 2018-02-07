@@ -41,7 +41,6 @@ public class ExoPlayerLoadControl implements LoadControl {
 
     private int targetBufferSize;
     private boolean isBuffering;
-    public static boolean needBuffering = true;//控制需要继续缓存的开关
 
     public ExoPlayerLoadControl(Context context) {
         this(new DefaultAllocator(true,C.DEFAULT_BUFFER_SEGMENT_SIZE));
@@ -118,16 +117,12 @@ public class ExoPlayerLoadControl implements LoadControl {
                 priorityTaskManager.remove(C.PRIORITY_PLAYBACK);
             }
         }
-        if (!NetworkUtils.isNetworkAvalidate(mContext)) {
-            needBuffering = false;
-        }else if (NetworkUtils.isOnlyMobileType(mContext) && !ExoPlayerControl.mobileNetPlay){
-            needBuffering = false;
-        }else if (NetworkUtils.isNetworkConnectedByWifi(mContext) || (NetworkUtils.isOnlyMobileType(mContext) && ExoPlayerControl.mobileNetPlay)){
-            needBuffering = true;
+        if (NetworkUtils.isNetworkConnectedByWifi(mContext) || (NetworkUtils.isOnlyMobileType(mContext) && ExoPlayerControl.mobileNetPlay)){
+            ExoPlayerControl.needBuffering = true;
         }
 
-        Log.d("shouldContinueLoading", "isBuffering : " + isBuffering + "; needBuffering : " + needBuffering);
-        return isBuffering && needBuffering;
+        Log.d("shouldContinueLoading", "isBuffering : " + isBuffering + "; needBuffering : " + ExoPlayerControl.needBuffering);
+        return isBuffering && ExoPlayerControl.needBuffering;
     }
 
     private int getBufferTimeState(long bufferedDurationUs) {

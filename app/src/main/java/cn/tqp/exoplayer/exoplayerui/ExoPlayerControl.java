@@ -14,6 +14,8 @@ public class ExoPlayerControl {
 
     public static boolean isNetError = false;//是否网络异常
 
+    public static boolean needBuffering = true;//控制需要继续缓存的开关
+
     public static boolean mobileNetPlay = false;//是否允许移动网络播放
 
 }

@@ -160,6 +160,7 @@ public class ExoPlayerControlView extends FrameLayout {
     private final Timeline.Window window;
 
     private View netView;
+    private ImageView imageNetBack;
     private TextView txtTip;
     private TextView btnReplay;
 
@@ -375,6 +376,7 @@ public class ExoPlayerControlView extends FrameLayout {
 
         //网络异常页
         netView = LayoutInflater.from(context).inflate(R.layout.net_error_layout, null);
+        imageNetBack = (ImageView) netView.findViewById(R.id.image_net_back);
         txtTip = (TextView) netView.findViewById(R.id.txt_tip);
         btnReplay = (TextView) netView.findViewById(R.id.btn_replay);
         if (NetworkUtils.isOnlyMobileType(context)) {
@@ -392,6 +394,7 @@ public class ExoPlayerControlView extends FrameLayout {
             }
         });
         btnReplay.setOnClickListener(componentListener);
+        imageNetBack.setOnClickListener(componentListener);
 
     }
 
@@ -523,8 +526,10 @@ public class ExoPlayerControlView extends FrameLayout {
             netView.setVisibility(VISIBLE);
             if (tag == ExoPlayerControl.MOBILE_NETWORK) {
                 txtTip.setText(R.string.mobile_net_tip);
-            } else if (tag == ExoPlayerControl.WIFI_NETWORK){
+                btnReplay.setText(R.string.mobile_button_to_play);
+            } else if (tag == ExoPlayerControl.NO_NETWORK){
                 txtTip.setText(R.string.no_net_tip);
+                btnReplay.setText(R.string.no_net_button_to_play);
             }
         }else{
             netView.setVisibility(GONE);
@@ -1421,7 +1426,7 @@ public class ExoPlayerControlView extends FrameLayout {
         @Override
         public void onClick(View view) {
             if (player != null) {
-                if (backButton == view) {
+                if (backButton == view || imageNetBack == view) {
                     if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE && ExoPlayerScreenOrientation.mIsCanResize) {//横屏
                         ((Activity) mContext).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                         scrrenButton.setBackgroundResource(fullScreenButton);

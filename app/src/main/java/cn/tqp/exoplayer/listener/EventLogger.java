@@ -115,6 +115,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
         Log.d(TAG, "loading [" + isLoading + "]");
         if (NetworkUtils.isOnlyMobileType(mExoPlayerView.getContext()) && !ExoPlayerControl.mobileNetPlay){
             ExoPlayerControl.isNetError = true;
+            ExoPlayerControl.needBuffering = false;
             mExoPlayerView.hideLoadingView();
             mExoPlayerView.getPlayer().setPlayWhenReady(false);
             mExoPlayerView.notifyNetViewIsVisible(true, ExoPlayerControl.MOBILE_NETWORK);
@@ -463,6 +464,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException error, boolean wasCanceled) {
         if (NetworkUtils.isOnlyMobileType(mExoPlayerView.getContext()) || !NetworkUtils.isNetworkAvalidate(mExoPlayerView.getContext())) {
             ExoPlayerControl.isNetError = true;
+            ExoPlayerControl.needBuffering = false;
             mExoPlayerView.getPlayer().setPlayWhenReady(false);
 
             if (NetworkUtils.isOnlyMobileType(mExoPlayerView.getContext())){
