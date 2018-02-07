@@ -23,7 +23,26 @@ public class ToastUtils {
      * @param msg            文本内容
      */
     public static void showToast(Context context, String msg) {
-        showToast(context, msg, 0, R.drawable.toast_bg);
+        showToast(context, msg, Gravity.BOTTOM,0, R.drawable.translucence_round_bg);
+    }
+
+    /**
+     * 显示提示信息
+     * @param context
+     * @param msgId
+     */
+    public static void showToast(Context context, int msgId) {
+        if (context == null || msgId <= 0) return;
+        showToast(context, msgId, Gravity.BOTTOM, 0, R.drawable.translucence_round_bg);
+    }
+
+    /**
+     * 显示提示信息
+     * @param context
+     * @param msg            文本内容
+     */
+    public static void showToast(Context context, String msg, int gravity) {
+        showToast(context, msg, gravity,0, R.drawable.translucence_round_bg);
     }
 
     /**
@@ -31,9 +50,9 @@ public class ToastUtils {
      * @param context
      * @param msgId            文本内容
      */
-    public static void showToast(Context context, int msgId) {
+    public static void showToast(Context context, int msgId, int gravity) {
         if (context == null || msgId <= 0) return;
-        showToast(context, msgId, 0, R.drawable.toast_bg);
+        showToast(context, msgId, gravity, 0, R.drawable.translucence_round_bg);
     }
 
     /**
@@ -42,9 +61,9 @@ public class ToastUtils {
      * @param resId          文本资源Id
      * @param imageRes       提示图标资源id
      */
-    public static void showToast(Context context, int resId, int imageRes) {
+    public static void showToast(Context context, int resId, int gravity, int imageRes) {
         if (context == null || resId <= 0) return;
-        showToast(context, context.getString(resId), imageRes, R.drawable.toast_bg);
+        showToast(context, context.getString(resId), gravity, imageRes, R.drawable.translucence_round_bg);
     }
 
     /**
@@ -53,8 +72,8 @@ public class ToastUtils {
      * @param msg            文本内容
      * @param imageRes       提示图标资源id
      */
-    public static void showToast(Context context, String msg, int imageRes) {
-        showToast(context, msg, imageRes, R.drawable.toast_bg);
+    public static void showToast(Context context, String msg, int gravity, int imageRes) {
+        showToast(context, msg, gravity, imageRes, R.drawable.translucence_round_bg);
     }
 
     /**
@@ -64,9 +83,9 @@ public class ToastUtils {
      * @param imageRes       提示图标资源id
      * @param backgroundRes  提示框背景图
      */
-    public static void showToast(Context context, int resId, int imageRes, int backgroundRes) {
+    public static void showToast(Context context, int resId, int gravity, int imageRes, int backgroundRes) {
         if (context == null || resId <= 0) return;
-        showToast(context, context.getString(resId), imageRes, backgroundRes);
+        showToast(context, context.getString(resId), gravity, imageRes, backgroundRes);
     }
 
     /**
@@ -74,21 +93,22 @@ public class ToastUtils {
      * @param context
      * @param msg            文本内容
      * @param imageRes       提示图标资源id
+     * @param gravity        所在位置
      * @param backgroundRes  提示框背景图
      */
-    public static void showToast(Context context, String msg, int imageRes, int backgroundRes) {
+    public static void showToast(Context context, String msg, int gravity, int imageRes, int backgroundRes) {
         if (context == null || TextUtils.isEmpty(msg)) return;
         if (toast != null) {
             toast.cancel();
             toast = null;
         }
         toast = Toast.makeText(context, msg, Toast.LENGTH_LONG);
-        toast.setGravity(Gravity.BOTTOM	, 0, 100);
+        toast.setGravity(gravity, 0, 100);
 
         LinearLayout toastView = (LinearLayout) toast.getView();
         toastView.setOrientation(LinearLayout.HORIZONTAL);
         TextView messageTextView = (TextView) toastView.getChildAt(0);
-        messageTextView.setTextSize(25);
+        messageTextView.setTextSize(15);
         if (backgroundRes > 0) {
             toastView.setBackgroundResource(backgroundRes);
         }

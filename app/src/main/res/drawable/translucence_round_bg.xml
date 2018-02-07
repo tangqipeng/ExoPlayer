@@ -4,6 +4,6 @@
 
     <solid android:color="@color/translucence" />
 
-    <corners android:radius="@dimen/base_dimen_4" />
+    <corners android:radius="@dimen/base_dimen_8" />
 
 </shape>
