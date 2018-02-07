@@ -636,6 +636,12 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         mLoadingView.hideLoading();
     }
 
+
+    public void setExoPlayerActionListener(ExoPlayerListener.PlayerActionListener playerActionListener){
+        if (this.controller != null)
+            this.controller.setPlayerActionListener(playerActionListener);
+    }
+
     /**
      * Sets the background color of the {@code exo_shutter} view.
      *
@@ -1191,8 +1197,10 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         if (this.controller != null && !this.controller.getPlayer().isPlayingAd()){
             if (this.controller.getPlayer().getPlayWhenReady()){
                 this.controller.getPlayer().setPlayWhenReady(false);
+                this.controller.notifyPauseTap();
             }else{
                 this.controller.getPlayer().setPlayWhenReady(true);
+                this.controller.notifyPlayTap();
             }
             maybeShowController(true);
         }

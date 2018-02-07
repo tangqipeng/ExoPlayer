@@ -1449,8 +1449,10 @@ public class ExoPlayerControlView extends FrameLayout {
                     rewind();
                 } else if (playButton == view) {
                     controlDispatcher.dispatchSetPlayWhenReady(player, true);
+                    notifyPlayTap();
                 } else if (pauseButton == view) {
                     controlDispatcher.dispatchSetPlayWhenReady(player, false);
+                    notifyPauseTap();
                 } else if (repeatToggleButton == view) {
                     controlDispatcher.dispatchSetRepeatMode(player, RepeatModeUtil.getNextRepeatMode(
                             player.getRepeatMode(), repeatToggleModes));
@@ -1564,6 +1566,22 @@ public class ExoPlayerControlView extends FrameLayout {
 
     public void setSwitchoverWindow(ExoPlayerListener.SwitchoverWindow switchoverWindow) {
         this.mSwitchoverWindow = switchoverWindow;
+    }
+
+    public ExoPlayerListener.PlayerActionListener mPlayerActionListener;
+
+    public void setPlayerActionListener(ExoPlayerListener.PlayerActionListener playerActionListener){
+        this.mPlayerActionListener = playerActionListener;
+    }
+
+    public void notifyPlayTap(){
+        if (mPlayerActionListener != null)
+            mPlayerActionListener.playTap();
+    }
+
+    public void notifyPauseTap(){
+        if (mPlayerActionListener != null)
+            mPlayerActionListener.pauseTap();
     }
 
     public void release() {

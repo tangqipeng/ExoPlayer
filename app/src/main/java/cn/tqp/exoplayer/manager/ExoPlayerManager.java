@@ -160,6 +160,7 @@ public class ExoPlayerManager {
                 && mediaSources.length > 0){
             exoPlayer = createFullPlayer();
             playerView.setPlayer(exoPlayer);
+            playerView.setExoPlayerActionListener(mEventLogger);
             if (previewMediaSources != null && previewMediaSources.length > 0) {
                 ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(previewMediaSources);
                 playerView.addPreviewMovieUrl(concatenatedSource);
