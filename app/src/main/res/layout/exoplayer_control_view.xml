@@ -133,7 +133,7 @@
             android:layout_marginLeft="@dimen/base_dimen_20" />
 
 
-        <com.google.android.exoplayer2.ui.DefaultTimeBar
+        <cn.tqp.exoplayer.exoplayerui.ExoPlayerTimeBar
             android:id="@id/exo_progress"
             android:layout_width="0dp"
             android:layout_height="match_parent"

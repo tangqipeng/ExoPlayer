@@ -104,8 +104,10 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
         VideoInfo videoInfo2 = new VideoInfo();
         videoInfo2.movieId = "2";
         videoInfo2.movieTitle = "怪奇物语";
-        videoInfo2.movieUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/zufudechengfa_iframe.m3u8";
-        videoInfo2.moviePreviewUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/201801/PIQvhUGb/pqczrawfwM.m3u8";
+//        videoInfo2.movieUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/zufudechengfa_iframe.m3u8";
+        videoInfo2.movieUrl = "http://tanzi27niu.cdsb.mobi/wps/wp-content/uploads/2017/05/2017-05-17_17-33-30.mp4";
+//        videoInfo2.moviePreviewUrl = "http://pumpkin-online-movie-development.oss-cn-beijing.aliyuncs.com/201801/PIQvhUGb/pqczrawfwM.m3u8";
+        videoInfo2.moviePreviewUrl = "http://tanzi27niu.cdsb.mobi/wps/wp-content/uploads/2017/05/2017-05-17_17-33-30.mp4";
         videoInfo2.imageCount = 42;
         List<PreviewImage> previewImages2 = new ArrayList<>();
         PreviewImage previewImage2 = new PreviewImage();
