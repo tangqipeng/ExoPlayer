@@ -122,7 +122,7 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
 
 //        exoPlayerManager.addVideoDatas(videoInfos);
         EventLogger eventLogger = new EventLogger(exoPlayerView);
-        exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos, eventLogger);
+        exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos, eventLogger, 0, 0);
 
     }
 
