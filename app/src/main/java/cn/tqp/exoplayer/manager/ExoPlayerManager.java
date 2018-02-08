@@ -5,10 +5,8 @@ import android.net.Uri;
 import android.os.Handler;
 
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
@@ -20,7 +18,6 @@ import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -30,13 +27,14 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import cn.tqp.exoplayer.entity.VideoInfo;
+import cn.tqp.exoplayer.exoplayerui.ExoPlayerControl;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerLoadControl;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
-import cn.tqp.exoplayer.entity.VideoInfo;
 import cn.tqp.exoplayer.listener.EventLogger;
+
 
 /**
  * Created by tangqipeng on 2018/1/25.
@@ -46,10 +44,10 @@ public class ExoPlayerManager {
 
     private static final String TAG = "ExoPlayerManager";
     private Context mContext;
+    private boolean reSet = false;
     private ExoPlayerView playerView;
     private SimpleExoPlayer exoPlayer;
     private List<VideoInfo> mVideoInfoList;
-    private VideoInfo mVideoInfo;
     private MediaSource[] mediaSources;
     private MediaSource[] previewMediaSources;
     private TrackSelector trackSelector;
@@ -64,15 +62,16 @@ public class ExoPlayerManager {
         TrackSelection.Factory videoTrackSelectionFactory = new AdaptiveTrackSelection.Factory(BANDWIDTH_METER);
         trackSelector = new DefaultTrackSelector(videoTrackSelectionFactory);
         mLoadControl = new ExoPlayerLoadControl(context);
-        mEventLogger = new EventLogger((MappingTrackSelector)trackSelector, playerView);
+//        mEventLogger = new EventLogger((MappingTrackSelector)trackSelector, playerView);
     }
 
     /**
      * 一次注入多个数据
      * @param videoInfoList
      */
-    public void addVideoDatas(List<VideoInfo> videoInfoList){
+    public void addVideoDatas(List<VideoInfo> videoInfoList, EventLogger eventLogger){
         this.mVideoInfoList = videoInfoList;
+        this.mEventLogger = eventLogger;
         playerView.setVideoInfoList(videoInfoList);
         mediaSources = new MediaSource[mVideoInfoList.size()];
         previewMediaSources = new MediaSource[mVideoInfoList.size()];
@@ -80,44 +79,55 @@ public class ExoPlayerManager {
             mediaSources[i] = addPlayMediaSouce(Uri.parse(mVideoInfoList.get(i).movieUrl));
             previewMediaSources[i] = addPreviewMediaSouce(Uri.parse(mVideoInfoList.get(i).moviePreviewUrl));
         }
+        if (previewMediaSources != null && previewMediaSources.length > 0) {
+            ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(previewMediaSources);
+            playerView.addPreviewMovieUrl(concatenatedSource);
+        }
+        createPlayers();
     }
 
     /**
      * 预览窗口是以图片的形式
      * @param videoInfoList
      */
-    public void addVideoDatasAndPreviewImages(List<VideoInfo> videoInfoList){
+    public void addVideoDatasAndPreviewImages(List<VideoInfo> videoInfoList, EventLogger eventLogger){
         this.mVideoInfoList = videoInfoList;
+        this.mEventLogger = eventLogger;
         playerView.setVideoInfoList(videoInfoList);
         mediaSources = new MediaSource[mVideoInfoList.size()];
         for (int i = 0; i < mVideoInfoList.size(); i ++){
             mediaSources[i] = addPlayMediaSouce(Uri.parse(mVideoInfoList.get(i).movieUrl));
         }
+        playerView.addPreviewImagesUrl(mVideoInfoList);
+        createPlayers();
     }
 
-    /**
-     * 一次加入单个数据
-     * @param videoInfo
-     */
-    public void addVideoData(VideoInfo videoInfo){
-        this.mVideoInfo = videoInfo;
-        mVideoInfoList = new ArrayList<>();
-        mVideoInfoList.add(videoInfo);
-        playerView.setVideoInfoList(mVideoInfoList);
-        mediaSources = new MediaSource[1];
-        previewMediaSources = new MediaSource[1];
-        mediaSources[0] = addPlayMediaSouce(Uri.parse(mVideoInfo.movieUrl));
-        previewMediaSources[0] = addPlayMediaSouce(Uri.parse(mVideoInfo.moviePreviewUrl));
-    }
+//    /**
+//     * 一次加入单个数据
+//     * @param videoInfo
+//     */
+//    public void addVideoData(VideoInfo videoInfo, long playPosition){
+//        this.mVideoInfo = videoInfo;
+//        this.mPlayPosition = playPosition;
+//        mVideoInfoList = new ArrayList<>();
+//        mVideoInfoList.add(videoInfo);
+//        playerView.setVideoInfoList(mVideoInfoList);
+//        mediaSources = new MediaSource[1];
+//        previewMediaSources = new MediaSource[1];
+//        mediaSources[0] = addPlayMediaSouce(Uri.parse(mVideoInfo.movieUrl));
+//        previewMediaSources[0] = addPlayMediaSouce(Uri.parse(mVideoInfo.moviePreviewUrl));
+//    }
 
     public void onStart() {
-        if (Util.SDK_INT > 23) {
+        if (Util.SDK_INT > 23 && reSet) {
+            reSet = false;
             createPlayers();
         }
     }
 
     public void onResume() {
-        if (Util.SDK_INT <= 23) {
+        if (Util.SDK_INT <= 23 && reSet) {
+            reSet = false;
             createPlayers();
         }
     }
@@ -136,7 +146,9 @@ public class ExoPlayerManager {
 
     private void releasePlayers() {
         if (exoPlayer != null) {
+            reSet = true;
             exoPlayer.setPlayWhenReady(false);
+            ExoPlayerControl.playPosition = exoPlayer.getCurrentPosition();
             exoPlayer.stop();
             exoPlayer.release();
             exoPlayer = null;
@@ -146,6 +158,7 @@ public class ExoPlayerManager {
 
     public void destroy(){
         trackSelector = null;
+        ExoPlayerControl.playPosition = 0;
         mLoadControl.onStopped();
         mLoadControl.onReleased();
         mLoadControl = null;
@@ -156,17 +169,16 @@ public class ExoPlayerManager {
             exoPlayer.release();
             exoPlayer = null;
         }
-        if (mVideoInfoList != null && mVideoInfoList.size() > 0 && mediaSources != null
-                && mediaSources.length > 0){
+        if (mVideoInfoList != null && mVideoInfoList.size() > 0 && mediaSources != null && mediaSources.length > 0){
             exoPlayer = createFullPlayer();
             playerView.setPlayer(exoPlayer);
             playerView.setExoPlayerActionListener(mEventLogger);
-            if (previewMediaSources != null && previewMediaSources.length > 0) {
-                ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(previewMediaSources);
-                playerView.addPreviewMovieUrl(concatenatedSource);
-            }else{
-                playerView.addPreviewImagesUrl(mVideoInfoList);
-            }
+//            if (previewMediaSources != null && previewMediaSources.length > 0) {
+//                ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(previewMediaSources);
+//                playerView.addPreviewMovieUrl(concatenatedSource);
+//            }else{
+//                playerView.addPreviewImagesUrl(mVideoInfoList);
+//            }
             playerView.setMovieTitle(mVideoInfoList.get(0).movieTitle);
         }
     }
@@ -176,6 +188,7 @@ public class ExoPlayerManager {
         ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);
         player.prepare(concatenatedSource);
         player.setPlayWhenReady(true);
+        player.seekTo(ExoPlayerControl.playPosition);
         player.addVideoDebugListener(mEventLogger);
         player.addMetadataOutput(mEventLogger);
         player.addListener(mEventLogger);

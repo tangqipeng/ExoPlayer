@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.tqp.exoplayer.listener.EventLogger;
 import cn.tqp.exoplayer.manager.ExoPlayerManager;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
 import cn.tqp.exoplayer.entity.PreviewImage;
@@ -120,7 +121,8 @@ public class ExoPlayerDemoActivity extends AppCompatActivity {
         videoInfos.add(videoInfo2);
 
 //        exoPlayerManager.addVideoDatas(videoInfos);
-        exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos);
+        EventLogger eventLogger = new EventLogger(exoPlayerView);
+        exoPlayerManager.addVideoDatasAndPreviewImages(videoInfos, eventLogger);
 
     }
 

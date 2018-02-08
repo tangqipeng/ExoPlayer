@@ -498,7 +498,6 @@ public class ExoPlayerControlView extends FrameLayout {
             FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             layoutParams.setMargins(2, 1, 2, 1);
             previewLayout.addView(mImageView, layoutParams);
-            Log.i("PPPP", "player.getRendererCount():"+player.getRendererCount());
             for (PreviewImage image : mPreviewVideo.get(0).previewImagesList){
                 GlideApp.with(mImageView).load(image.imagePreviewUrl).into(mImageView);
             }

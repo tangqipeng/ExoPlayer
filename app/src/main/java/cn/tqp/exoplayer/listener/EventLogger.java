@@ -19,13 +19,10 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.Surface;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.RendererCapabilities;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -41,25 +38,19 @@ import com.google.android.exoplayer2.metadata.id3.PrivFrame;
 import com.google.android.exoplayer2.metadata.id3.TextInformationFrame;
 import com.google.android.exoplayer2.metadata.id3.UrlLinkFrame;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
-import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.Locale;
 
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerControl;
-import cn.tqp.exoplayer.exoplayerui.ExoPlayerLoadControl;
 import cn.tqp.exoplayer.exoplayerui.ExoPlayerView;
 import cn.tqp.exoplayer.utils.ExoPlayerUtils;
 import cn.tqp.exoplayer.utils.NetworkUtils;
+
 
 /**
  * Logs player events using {@link Log}.
@@ -72,7 +63,6 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     private static final String TAG = "EventLogger";
     private static final int MAX_TIMELINE_ITEM_LINES = 3;
 
-    private final MappingTrackSelector trackSelector;
     private final ExoPlayerView mExoPlayerView;
     private final Timeline.Window window;
     private final Timeline.Period period;
@@ -86,8 +76,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     private long pausePosition = 0;
     private long playCountTime = 0;
 
-    public EventLogger(MappingTrackSelector trackSelector, ExoPlayerView exoPlayerView) {
-        this.trackSelector = trackSelector;
+    public EventLogger(ExoPlayerView exoPlayerView) {
         this.mExoPlayerView = exoPlayerView;
         window = new Timeline.Window();
         period = new Timeline.Period();
@@ -122,7 +111,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
      */
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int state) {
-        Log.d(TAG, "state [" + getSessionTimeString() + ", " + playWhenReady + ", " + ExoPlayerUtils.getStateString(state) + "]");
+        Log.d(TAG, "state [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + ", " + playWhenReady + ", " + ExoPlayerUtils.getStateString(state) + "]");
 
         currentTimeMs = SystemClock.elapsedRealtime();
 
@@ -260,7 +249,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
      */
     @Override
     public void onPlayerError(ExoPlaybackException e) {
-        Log.e(TAG, "playerFailed [" + getSessionTimeString() + "]", e);
+        Log.e(TAG, "playerFailed [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + "]", e);
     }
 
     /**
@@ -271,68 +260,68 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
      */
     @Override
     public void onTracksChanged(TrackGroupArray ignored, TrackSelectionArray trackSelections) {
-        MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
-        if (mappedTrackInfo == null) {
-            Log.d(TAG, "Tracks []");
-            return;
-        }
-        Log.d(TAG, "Tracks [");
-        // Log tracks associated to renderers.
-        for (int rendererIndex = 0; rendererIndex < mappedTrackInfo.length; rendererIndex++) {
-            TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
-            TrackSelection trackSelection = trackSelections.get(rendererIndex);
-            if (rendererTrackGroups.length > 0) {
-                Log.d(TAG, "  Renderer:" + rendererIndex + " [");
-                for (int groupIndex = 0; groupIndex < rendererTrackGroups.length; groupIndex++) {
-                    TrackGroup trackGroup = rendererTrackGroups.get(groupIndex);
-                    String adaptiveSupport = ExoPlayerUtils.getAdaptiveSupportString(trackGroup.length,
-                            mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false));
-                    Log.d(TAG, "    Group:" + groupIndex + ", adaptive_supported=" + adaptiveSupport + " [");
-                    for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-                        String status = ExoPlayerUtils.getTrackStatusString(trackSelection, trackGroup, trackIndex);
-                        String formatSupport = ExoPlayerUtils.getFormatSupportString(
-                                mappedTrackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex));
-                        Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
-                                + Format.toLogString(trackGroup.getFormat(trackIndex))
-                                + ", supported=" + formatSupport);
-                    }
-                    Log.d(TAG, "    ]");
-                }
-                // Log metadata for at most one of the tracks selected for the renderer.
-                if (trackSelection != null) {
-                    for (int selectionIndex = 0; selectionIndex < trackSelection.length(); selectionIndex++) {
-                        Metadata metadata = trackSelection.getFormat(selectionIndex).metadata;
-                        if (metadata != null) {
-                            Log.d(TAG, "    Metadata [");
-                            printMetadata(metadata, "      ");
-                            Log.d(TAG, "    ]");
-                            break;
-                        }
-                    }
-                }
-                Log.d(TAG, "  ]");
-            }
-        }
-        // Log tracks not associated with a renderer.
-        TrackGroupArray unassociatedTrackGroups = mappedTrackInfo.getUnassociatedTrackGroups();
-        if (unassociatedTrackGroups.length > 0) {
-            Log.d(TAG, "  Renderer:None [");
-            for (int groupIndex = 0; groupIndex < unassociatedTrackGroups.length; groupIndex++) {
-                Log.d(TAG, "    Group:" + groupIndex + " [");
-                TrackGroup trackGroup = unassociatedTrackGroups.get(groupIndex);
-                for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
-                    String status = ExoPlayerUtils.getTrackStatusString(false);
-                    String formatSupport = ExoPlayerUtils.getFormatSupportString(
-                            RendererCapabilities.FORMAT_UNSUPPORTED_TYPE);
-                    Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
-                            + Format.toLogString(trackGroup.getFormat(trackIndex))
-                            + ", supported=" + formatSupport);
-                }
-                Log.d(TAG, "    ]");
-            }
-            Log.d(TAG, "  ]");
-        }
-        Log.d(TAG, "]");
+//        MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+//        if (mappedTrackInfo == null) {
+//            Log.d(TAG, "Tracks []");
+//            return;
+//        }
+//        Log.d(TAG, "Tracks [");
+//        // Log tracks associated to renderers.
+//        for (int rendererIndex = 0; rendererIndex < mappedTrackInfo.length; rendererIndex++) {
+//            TrackGroupArray rendererTrackGroups = mappedTrackInfo.getTrackGroups(rendererIndex);
+//            TrackSelection trackSelection = trackSelections.get(rendererIndex);
+//            if (rendererTrackGroups.length > 0) {
+//                Log.d(TAG, "  Renderer:" + rendererIndex + " [");
+//                for (int groupIndex = 0; groupIndex < rendererTrackGroups.length; groupIndex++) {
+//                    TrackGroup trackGroup = rendererTrackGroups.get(groupIndex);
+//                    String adaptiveSupport = ExoPlayerUtils.getAdaptiveSupportString(trackGroup.length,
+//                            mappedTrackInfo.getAdaptiveSupport(rendererIndex, groupIndex, false));
+//                    Log.d(TAG, "    Group:" + groupIndex + ", adaptive_supported=" + adaptiveSupport + " [");
+//                    for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+//                        String status = ExoPlayerUtils.getTrackStatusString(trackSelection, trackGroup, trackIndex);
+//                        String formatSupport = ExoPlayerUtils.getFormatSupportString(
+//                                mappedTrackInfo.getTrackFormatSupport(rendererIndex, groupIndex, trackIndex));
+//                        Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
+//                                + Format.toLogString(trackGroup.getFormat(trackIndex))
+//                                + ", supported=" + formatSupport);
+//                    }
+//                    Log.d(TAG, "    ]");
+//                }
+//                // Log metadata for at most one of the tracks selected for the renderer.
+//                if (trackSelection != null) {
+//                    for (int selectionIndex = 0; selectionIndex < trackSelection.length(); selectionIndex++) {
+//                        Metadata metadata = trackSelection.getFormat(selectionIndex).metadata;
+//                        if (metadata != null) {
+//                            Log.d(TAG, "    Metadata [");
+//                            printMetadata(metadata, "      ");
+//                            Log.d(TAG, "    ]");
+//                            break;
+//                        }
+//                    }
+//                }
+//                Log.d(TAG, "  ]");
+//            }
+//        }
+//        // Log tracks not associated with a renderer.
+//        TrackGroupArray unassociatedTrackGroups = mappedTrackInfo.getUnassociatedTrackGroups();
+//        if (unassociatedTrackGroups.length > 0) {
+//            Log.d(TAG, "  Renderer:None [");
+//            for (int groupIndex = 0; groupIndex < unassociatedTrackGroups.length; groupIndex++) {
+//                Log.d(TAG, "    Group:" + groupIndex + " [");
+//                TrackGroup trackGroup = unassociatedTrackGroups.get(groupIndex);
+//                for (int trackIndex = 0; trackIndex < trackGroup.length; trackIndex++) {
+//                    String status = ExoPlayerUtils.getTrackStatusString(false);
+//                    String formatSupport = ExoPlayerUtils.getFormatSupportString(
+//                            RendererCapabilities.FORMAT_UNSUPPORTED_TYPE);
+//                    Log.d(TAG, "      " + status + " Track:" + trackIndex + ", "
+//                            + Format.toLogString(trackGroup.getFormat(trackIndex))
+//                            + ", supported=" + formatSupport);
+//                }
+//                Log.d(TAG, "    ]");
+//            }
+//            Log.d(TAG, "  ]");
+//        }
+//        Log.d(TAG, "]");
     }
 
     /**
@@ -356,7 +345,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onAudioEnabled(DecoderCounters counters) {
-        Log.d(TAG, "audioEnabled [" + getSessionTimeString() + "]");
+        Log.d(TAG, "audioEnabled [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + "]");
     }
 
     @Override
@@ -366,17 +355,17 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onAudioDecoderInitialized(String decoderName, long elapsedRealtimeMs, long initializationDurationMs) {
-        Log.d(TAG, "audioDecoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
+        Log.d(TAG, "audioDecoderInitialized [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + ", " + decoderName + "]");
     }
 
     @Override
     public void onAudioInputFormatChanged(Format format) {
-        Log.d(TAG, "audioFormatChanged [" + getSessionTimeString() + ", " + Format.toLogString(format) + "]");
+        Log.d(TAG, "audioFormatChanged [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + ", " + Format.toLogString(format) + "]");
     }
 
     @Override
     public void onAudioDisabled(DecoderCounters counters) {
-        Log.d(TAG, "audioDisabled [" + getSessionTimeString() + "]");
+        Log.d(TAG, "audioDisabled [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + "]");
     }
 
     @Override
@@ -388,28 +377,28 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onVideoEnabled(DecoderCounters counters) {
-        Log.d(TAG, "videoEnabled [" + getSessionTimeString() + "]");
+        Log.d(TAG, "videoEnabled [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + "]");
     }
 
     @Override
     public void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs, long initializationDurationMs) {
 //        ExoPlayerControl.isPrepared = true;
-        Log.d(TAG, "videoDecoderInitialized [" + getSessionTimeString() + ", " + decoderName + "]");
+        Log.d(TAG, "videoDecoderInitialized [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + ", " + decoderName + "]");
     }
 
     @Override
     public void onVideoInputFormatChanged(Format format) {
-        Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + Format.toLogString(format) + "]");
+        Log.d(TAG, "videoFormatChanged [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + ", " + Format.toLogString(format) + "]");
     }
 
     @Override
     public void onVideoDisabled(DecoderCounters counters) {
-        Log.d(TAG, "videoDisabled [" + getSessionTimeString() + "]");
+        Log.d(TAG, "videoDisabled [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + "]");
     }
 
     @Override
     public void onDroppedFrames(int count, long elapsed) {
-        Log.d(TAG, "droppedFrames [" + getSessionTimeString() + ", " + count + "]");
+        Log.d(TAG, "droppedFrames [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + ", " + count + "]");
     }
 
     @Override
@@ -431,17 +420,17 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onDrmKeysRestored() {
-        Log.d(TAG, "drmKeysRestored [" + getSessionTimeString() + "]");
+        Log.d(TAG, "drmKeysRestored [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + "]");
     }
 
     @Override
     public void onDrmKeysRemoved() {
-        Log.d(TAG, "drmKeysRemoved [" + getSessionTimeString() + "]");
+        Log.d(TAG, "drmKeysRemoved [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + "]");
     }
 
     @Override
     public void onDrmKeysLoaded() {
-        Log.d(TAG, "drmKeysLoaded [" + getSessionTimeString() + "]");
+        Log.d(TAG, "drmKeysLoaded [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + "]");
     }
 
     // MediaSourceEventListener
@@ -533,7 +522,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     // Internal methods
 
     private void printInternalError(String type, Exception e) {
-        Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", e);
+        Log.e(TAG, "internalError [" + ExoPlayerUtils.getSessionTimeString(startTimeMs) + ", " + type + "]", e);
     }
 
     private void printMetadata(Metadata metadata, String prefix) {
@@ -570,10 +559,6 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
                         eventMessage.schemeIdUri, eventMessage.id, eventMessage.value));
             }
         }
-    }
-
-    private String getSessionTimeString() {
-        return ExoPlayerUtils.getTimeString(SystemClock.elapsedRealtime() - startTimeMs);
     }
 
 }

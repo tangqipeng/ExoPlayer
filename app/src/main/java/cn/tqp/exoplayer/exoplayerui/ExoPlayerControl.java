@@ -6,6 +6,8 @@ package cn.tqp.exoplayer.exoplayerui;
 
 public class ExoPlayerControl {
 
+    public static long playPosition = 0;
+
     public static final int WIFI_NETWORK = 0;
     public static final int MOBILE_NETWORK = 1;
     public static final int NO_NETWORK = 2;

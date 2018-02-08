@@ -1,5 +1,7 @@
 package cn.tqp.exoplayer.utils;
 
+import android.os.SystemClock;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RendererCapabilities;
@@ -127,5 +129,8 @@ public class ExoPlayerUtils {
         return timeMs == C.TIME_UNSET ? "?" : TIME_FORMAT.format((timeMs) / 1000f);
     }
 
+    public static String getSessionTimeString(long startTimeMs) {
+        return ExoPlayerUtils.getTimeString(SystemClock.elapsedRealtime() - startTimeMs);
+    }
 
 }
