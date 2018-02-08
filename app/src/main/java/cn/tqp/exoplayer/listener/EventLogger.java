@@ -94,7 +94,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
     @Override
     public void onLoadingChanged(boolean isLoading) {
         Log.d(TAG, "loading [" + isLoading + "]");
-        if (NetworkUtils.isOnlyMobileType(mExoPlayerView.getContext()) && !ExoPlayerControl.mobileNetPlay){
+        if (NetworkUtils.isOnlyMobileType(mExoPlayerView.getContext()) && !ExoPlayerControl.mobileNetPlay && !mExoPlayerView.isCachePath()){
             ExoPlayerControl.isNetError = true;
             ExoPlayerControl.needBuffering = false;
             mExoPlayerView.hideLoadingView();

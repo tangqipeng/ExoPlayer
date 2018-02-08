@@ -238,6 +238,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
     private boolean controllerAutoShow;
     private boolean controllerHideDuringAds;
     private boolean controllerHideOnTouch;
+    private boolean mIsCachePath;//是否是本地缓存片
 
     private ExoPlayerGravitySensorManager sensorManager;
 
@@ -447,12 +448,21 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
         }
     }
 
-    public void setVideoInfoList(List<VideoInfo> videoInfoList){
+    public void setVideoInfoList(List<VideoInfo> videoInfoList, int windowIndex){
         this.mVideoInfoList = videoInfoList;
+        setIsCachePath(videoInfoList.get(windowIndex).isCache);
     }
 
     public List<VideoInfo> getVideoList(){
         return mVideoInfoList;
+    }
+
+    public boolean isCachePath() {
+        return mIsCachePath;
+    }
+
+    public void setIsCachePath(boolean mIsCachePath) {
+        this.mIsCachePath = mIsCachePath;
     }
 
     /**

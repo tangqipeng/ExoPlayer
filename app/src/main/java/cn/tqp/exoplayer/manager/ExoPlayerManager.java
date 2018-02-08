@@ -27,6 +27,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import cn.tqp.exoplayer.entity.VideoInfo;
@@ -69,10 +70,10 @@ public class ExoPlayerManager {
      * 一次注入多个数据
      * @param videoInfoList
      */
-    public void addVideoDatas(List<VideoInfo> videoInfoList, EventLogger eventLogger){
+    public void addVideoDatas(List<VideoInfo> videoInfoList, EventLogger eventLogger, int windowIndex, long position){
         this.mVideoInfoList = videoInfoList;
         this.mEventLogger = eventLogger;
-        playerView.setVideoInfoList(videoInfoList);
+        playerView.setVideoInfoList(videoInfoList, windowIndex);
         mediaSources = new MediaSource[mVideoInfoList.size()];
         previewMediaSources = new MediaSource[mVideoInfoList.size()];
         for (int i = 0; i < mVideoInfoList.size(); i ++){
@@ -83,6 +84,7 @@ public class ExoPlayerManager {
             ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(previewMediaSources);
             playerView.addPreviewMovieUrl(concatenatedSource);
         }
+        ExoPlayerControl.playPosition = position;
         createPlayers();
     }
 
@@ -90,33 +92,51 @@ public class ExoPlayerManager {
      * 预览窗口是以图片的形式
      * @param videoInfoList
      */
-    public void addVideoDatasAndPreviewImages(List<VideoInfo> videoInfoList, EventLogger eventLogger){
+    public void addVideoDatasAndPreviewImages(List<VideoInfo> videoInfoList, EventLogger eventLogger, int windowIndex, long position){
         this.mVideoInfoList = videoInfoList;
         this.mEventLogger = eventLogger;
-        playerView.setVideoInfoList(videoInfoList);
+        playerView.setVideoInfoList(videoInfoList, windowIndex);
         mediaSources = new MediaSource[mVideoInfoList.size()];
         for (int i = 0; i < mVideoInfoList.size(); i ++){
             mediaSources[i] = addPlayMediaSouce(Uri.parse(mVideoInfoList.get(i).movieUrl));
         }
         playerView.addPreviewImagesUrl(mVideoInfoList);
+        ExoPlayerControl.playPosition = position;
         createPlayers();
     }
 
-//    /**
-//     * 一次加入单个数据
-//     * @param videoInfo
-//     */
-//    public void addVideoData(VideoInfo videoInfo, long playPosition){
-//        this.mVideoInfo = videoInfo;
-//        this.mPlayPosition = playPosition;
-//        mVideoInfoList = new ArrayList<>();
-//        mVideoInfoList.add(videoInfo);
-//        playerView.setVideoInfoList(mVideoInfoList);
-//        mediaSources = new MediaSource[1];
-//        previewMediaSources = new MediaSource[1];
-//        mediaSources[0] = addPlayMediaSouce(Uri.parse(mVideoInfo.movieUrl));
-//        previewMediaSources[0] = addPlayMediaSouce(Uri.parse(mVideoInfo.moviePreviewUrl));
-//    }
+    /**
+     * 一次加入单个数据
+     * @param videoInfo
+     */
+    public void addVideoData(VideoInfo videoInfo, EventLogger eventLogger, long playPosition){
+        this.mEventLogger = eventLogger;
+        mVideoInfoList = new ArrayList<>();
+        mVideoInfoList.add(videoInfo);
+        playerView.setVideoInfoList(mVideoInfoList, 0);
+        mediaSources = new MediaSource[1];
+        previewMediaSources = new MediaSource[1];
+        mediaSources[0] = addPlayMediaSouce(Uri.parse(videoInfo.movieUrl));
+        previewMediaSources[0] = addPlayMediaSouce(Uri.parse(videoInfo.moviePreviewUrl));
+        if (previewMediaSources != null && previewMediaSources.length > 0) {
+            ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(previewMediaSources);
+            playerView.addPreviewMovieUrl(concatenatedSource);
+        }
+        ExoPlayerControl.playPosition = playPosition;
+        createPlayers();
+    }
+
+    public void addVideoDataAndPreviewImage(VideoInfo videoInfo, EventLogger eventLogger, long playPosition){
+        this.mEventLogger = eventLogger;
+        mVideoInfoList = new ArrayList<>();
+        mVideoInfoList.add(videoInfo);
+        playerView.setVideoInfoList(mVideoInfoList, 0);
+        mediaSources = new MediaSource[1];
+        mediaSources[0] = addPlayMediaSouce(Uri.parse(videoInfo.movieUrl));
+        playerView.addPreviewImagesUrl(mVideoInfoList);
+        ExoPlayerControl.playPosition = playPosition;
+        createPlayers();
+    }
 
     public void onStart() {
         if (Util.SDK_INT > 23 && reSet) {

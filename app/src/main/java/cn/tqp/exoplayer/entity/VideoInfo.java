@@ -15,6 +15,7 @@ public class VideoInfo {
     public String movieUrl;
     public String moviePreviewUrl;
     public int imageCount;
+    public boolean isCache;
     public List<PreviewImage> previewImagesList;
 
 }
