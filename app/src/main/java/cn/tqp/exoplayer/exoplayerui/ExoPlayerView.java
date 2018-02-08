@@ -450,7 +450,9 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
 
     public void setVideoInfoList(List<VideoInfo> videoInfoList, int windowIndex){
         this.mVideoInfoList = videoInfoList;
-        setIsCachePath(videoInfoList.get(windowIndex).isCache);
+        if (windowIndex < videoInfoList.size()) {
+            setIsCachePath(videoInfoList.get(windowIndex).isCache);
+        }
     }
 
     public List<VideoInfo> getVideoList(){
