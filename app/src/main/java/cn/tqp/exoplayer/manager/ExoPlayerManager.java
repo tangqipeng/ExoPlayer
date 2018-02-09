@@ -3,6 +3,7 @@ package cn.tqp.exoplayer.manager;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
+import android.util.Log;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -169,19 +170,21 @@ public class ExoPlayerManager {
             reSet = true;
             exoPlayer.setPlayWhenReady(false);
             ExoPlayerControl.playPosition = exoPlayer.getCurrentPosition();
+            Log.i(TAG, "ExoPlayerControl.playPosition1:"+ExoPlayerControl.playPosition);
             exoPlayer.stop();
             exoPlayer.release();
             exoPlayer = null;
-            playerView.release();
         }
     }
 
     public void destroy(){
         trackSelector = null;
         ExoPlayerControl.playPosition = 0;
+        Log.i(TAG, "ExoPlayerControl.playPosition3:"+ExoPlayerControl.playPosition);
         mLoadControl.onStopped();
         mLoadControl.onReleased();
         mLoadControl = null;
+        playerView.release();
     }
 
     private void createPlayers() {
@@ -193,12 +196,6 @@ public class ExoPlayerManager {
             exoPlayer = createFullPlayer();
             playerView.setPlayer(exoPlayer);
             playerView.setExoPlayerActionListener(mEventLogger);
-//            if (previewMediaSources != null && previewMediaSources.length > 0) {
-//                ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(previewMediaSources);
-//                playerView.addPreviewMovieUrl(concatenatedSource);
-//            }else{
-//                playerView.addPreviewImagesUrl(mVideoInfoList);
-//            }
             playerView.setMovieTitle(mVideoInfoList.get(0).movieTitle);
         }
     }
@@ -208,6 +205,7 @@ public class ExoPlayerManager {
         ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);
         player.prepare(concatenatedSource);
         player.setPlayWhenReady(true);
+        Log.i(TAG, "ExoPlayerControl.playPosition2:"+ExoPlayerControl.playPosition);
         player.seekTo(ExoPlayerControl.playPosition);
         player.addVideoDebugListener(mEventLogger);
         player.addMetadataOutput(mEventLogger);

@@ -706,10 +706,12 @@ public class ExoPlayerControlView extends FrameLayout {
      * @param isShow true show. false dismiss
      */
     public void setResizeScreenButton(boolean isShow) {
-        if (isShow) {
-            scrrenButton.setVisibility(VISIBLE);
-        } else {
-            scrrenButton.setVisibility(GONE);
+        if (scrrenButton != null) {
+            if (isShow) {
+                scrrenButton.setVisibility(VISIBLE);
+            } else {
+                scrrenButton.setVisibility(GONE);
+            }
         }
     }
 

@@ -463,7 +463,7 @@ public class EventLogger implements Player.EventListener, MetadataOutput, AudioR
 
     @Override
     public void onLoadCanceled(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-        Log.d(TAG, "onLoadCanceled dataSpec [" + dataSpec.uri + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
+        Log.d(TAG, "onLoadCanceled dataSpec [" + (null == dataSpec.uri? "0" : dataSpec.uri) + "] dataType [" + dataType + "] trackType [" + trackType + "] trackFormat [" + trackFormat + "] trackSelectionReason [" + trackSelectionReason + "] trackSelectionData [" + trackSelectionData +
                 "] mediaStartTimeMs [" + mediaStartTimeMs + "] mediaEndTimeMs [" + mediaEndTimeMs + "] elapsedRealtimeMs [" + elapsedRealtimeMs + "] loadDurationMs [" + loadDurationMs + "] bytesLoaded [" + bytesLoaded + "]");
     }
 

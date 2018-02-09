@@ -1206,7 +1206,7 @@ public class ExoPlayerView extends FrameLayout implements ExoPlayerListener.Swit
 
     @Override
     public void doubleTouch(MotionEvent ev) {
-        if (this.controller != null && !this.controller.getPlayer().isPlayingAd()){
+        if (this.controller != null  && null != this.controller.getPlayer() && !this.controller.getPlayer().isPlayingAd()){
             if (this.controller.getPlayer().getPlayWhenReady()){
                 this.controller.getPlayer().setPlayWhenReady(false);
                 this.controller.notifyPauseTap();
