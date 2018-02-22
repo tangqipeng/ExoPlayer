@@ -153,6 +153,7 @@ public class ExoPlayerControlView extends FrameLayout {
     private FrameLayout previewLayout;
     private SimpleExoPlayerView preView;
     private ImageView mImageView;
+    private ExoPlayerSeekView seekView;
     private final TimeBar timeBar;
     private final StringBuilder formatBuilder;
     private final Formatter formatter;
@@ -490,16 +491,24 @@ public class ExoPlayerControlView extends FrameLayout {
     public void addPreviewImageview(List<VideoInfo> videoInfos) {
         this.mPreviewVideo = videoInfos;
         if (showPreviewButton && previewLayout != null) {
-            mImageView = new ImageView(mContext);
-            if (previewLayout.getChildCount() > 0) {
-                previewLayout.removeAllViews();
-            }
+            if (null != videoInfos && videoInfos.size() > 0 && null != mPreviewVideo.get(0).previewImagesList && mPreviewVideo.get(0).previewImagesList.size() > 0) {
+                mImageView = new ImageView(mContext);
+                if (previewLayout.getChildCount() > 0) {
+                    previewLayout.removeAllViews();
+                }
 
-            FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            layoutParams.setMargins(2, 1, 2, 1);
-            previewLayout.addView(mImageView, layoutParams);
-            for (PreviewImage image : mPreviewVideo.get(0).previewImagesList){
-                GlideApp.with(mImageView).load(image.imagePreviewUrl).into(mImageView);
+                FrameLayout.LayoutParams layoutParams = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+                layoutParams.setMargins(2, 1, 2, 1);
+                previewLayout.addView(mImageView, layoutParams);
+                for (PreviewImage image : mPreviewVideo.get(0).previewImagesList) {
+                    GlideApp.with(mImageView).load(image.imagePreviewUrl).into(mImageView);
+                }
+            }else{
+                seekView = new ExoPlayerSeekView(mContext);
+                FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                layoutParams.gravity = Gravity.CENTER;
+                addView(seekView, layoutParams);
+                seekView.setVisibility(GONE);
             }
         }
     }
@@ -1274,6 +1283,12 @@ public class ExoPlayerControlView extends FrameLayout {
             seekPosition = player.getCurrentPosition();
             previewLayout.setVisibility(View.VISIBLE);
         }
+
+        if (showPreviewButton && seekView != null && mPreviewVideo != null){
+            player.setPlayWhenReady(false);
+            seekPosition = player.getCurrentPosition();
+            seekView.setVisibility(View.VISIBLE);
+        }
     }
 
     /**
@@ -1311,7 +1326,16 @@ public class ExoPlayerControlView extends FrameLayout {
 
             long thumbnails_each_time = (long)(player.getDuration() / mPreviewVideo.get(player.getCurrentWindowIndex()).imageCount);
 
-            int index = (int)(position / thumbnails_each_time / mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(0).imageSize);
+            int count = 0;
+
+            int index = 0;
+
+            for (int i = 0; i < mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.size(); i++){
+                count = count + mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(i).imageSize;
+                if (position / thumbnails_each_time <= count){
+                    index = i;
+                }
+            }
 
             Log.i("PPPP", "index:"+index + "   position:"+position+"  thumbnails_each_time:"+thumbnails_each_time + "   player.getDuration():"+player.getDuration());
 
@@ -1321,10 +1345,19 @@ public class ExoPlayerControlView extends FrameLayout {
                 GlideApp.with(mImageView)
                         .load(imageUrl)
                         .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                        .transform(new GlideThumbnailTransformation(position, ((int) player.getDuration() / mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(0).imageSize),
-                                mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(0).lines, mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(0).colums))
+                        .transform(new GlideThumbnailTransformation(position, ((int) thumbnails_each_time),
+                                mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(index).lines, mPreviewVideo.get(player.getCurrentWindowIndex()).previewImagesList.get(index).colums))
                         .into(mImageView);
             }
+        }
+
+        if (showPreviewButton && seekView != null && mPreviewVideo != null){
+            if (timeBar != null){
+                timeBar.setPosition(position);
+            }
+            seekPosition = position;
+            seekView.setVisibility(View.VISIBLE);
+            seekView.setIconAndPosition(position);
         }
     }
 
@@ -1361,6 +1394,13 @@ public class ExoPlayerControlView extends FrameLayout {
                 player.setPlayWhenReady(true);
             }
             previewLayout.setVisibility(View.GONE);
+        }
+
+        if (showPreviewButton && seekView != null && mPreviewVideo != null){
+            if (player != null && player instanceof SimpleExoPlayer) {
+                player.setPlayWhenReady(true);
+            }
+            seekView.setVisibility(View.GONE);
         }
     }
 
